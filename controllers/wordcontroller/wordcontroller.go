@@ -25,12 +25,13 @@ func LearnSession(c *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Println("No active question")
-		_, words, err := userworddb.GetViableWordsForUserForDictionaryWhereItIsntActiveQuestion(db.DB, c.Locals("id").(int), idInt)
+		userWord, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("id").(int), idInt)
+		fmt.Println(userWord)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/login"})
 		}
+		fmt.Println(words)
 		for _, word := range words {
-			fmt.Println(word)
 			currentDate := time.Now()
 			var trueword = userworddb.UserWord{
 				UserID:       c.Locals("id").(int),

@@ -3,12 +3,14 @@ module BalkanLinGO
 go 1.21.0
 
 require (
+	github.com/a-h/templ v0.2.513
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gofiber/fiber/v2 v2.52.0
+	github.com/rs/zerolog v1.28.0
+	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551
 )
 
 require (
-	github.com/a-h/templ v0.2.513 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/gofiber/fiber/v3 v3.0.0-20240121073223-827013d789ec // indirect
@@ -25,8 +27,6 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
-	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect

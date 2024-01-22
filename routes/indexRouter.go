@@ -16,7 +16,7 @@ func IndexRouter(app *fiber.App, session *session.Store) {
 
 	route := app.Group("/")
 	route.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("home", fiber.Map{"title": "Home"})
+		return c.SendFile("./views/home.html", true)
 	})
 
 	route.Get("/register", func(c *fiber.Ctx) error {

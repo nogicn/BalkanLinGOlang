@@ -60,11 +60,11 @@ func main() {
 					if bytes.Contains(bits, []byte("gzip")) && bytes.Contains(bits, []byte("br")) {
 						c.Request().Header.Set("Accept-Encoding", "gzip")
 					}
-				}
-			}
-			//c.Request().Header.Set("Accept-Encoding", "gzip")
-			return true
 
+				}
+				return true // set to true to disable
+			}
+			return true
 		},
 	}))*/
 	//app.Use(pprof.New())

@@ -11,8 +11,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"
 
-	//"github.com/rs/zerolog"
-	//"github.com/simukti/sqldb-logger/logadapter/zerologadapter"
+	"github.com/rs/zerolog"
+	"github.com/simukti/sqldb-logger/logadapter/zerologadapter"
 
 	//_ "modernc.org/sqlite"
 
@@ -23,7 +23,8 @@ import (
 	"BalkanLinGO/models/userdb"
 	"BalkanLinGO/models/userworddb"
 	"BalkanLinGO/models/worddb"
-	//sqldblogger "github.com/simukti/sqldb-logger"
+
+	sqldblogger "github.com/simukti/sqldb-logger"
 )
 
 var DB *sql.DB
@@ -60,9 +61,9 @@ func Init() {
 	//os.Setenv("SQLITE_LOG", "1")
 	dsn := "file:./db/database.sqlite3?cache=shared&_journal_mode=WAL" //&_journal_mode=WAL
 	DB, err = sql.Open("sqlite3", dsn)
-	/*loggerAdapter := zerologadapter.New(zerolog.New(os.Stdout))
+	loggerAdapter := zerologadapter.New(zerolog.New(os.Stdout))
 	DB = sqldblogger.OpenDriver(dsn, DB.Driver(), loggerAdapter, sqldblogger.WithQueryerLevel(sqldblogger.LevelDebug))
-	DB.Ping()*/
+	DB.Ping()
 	// write ahead logging
 	//DB, err = sql.Open("sqlite3", "file::memory:?cache=shared&_journal_mode=WAL")
 	//DB, err = sql.Open("mysql", "root:my-secret-pw@/surfpit")

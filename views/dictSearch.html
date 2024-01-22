@@ -21,8 +21,7 @@
                 hx-post="/dictionary/search2/{{ dictionary.ID }}" 
                 hx-trigger="input changed delay:100ms, search" 
                 hx-target="#words"
-                hx-swap="outerHTML"
-                hx-indicator="#loading">
+                hx-swap="outerHTML">
                 <br>
                 <div class="img-container">
                     <a href="/dictionary/addWord/{{ dictionary.ID }}"><img src="/images/black-add.png" alt=""> </a>
