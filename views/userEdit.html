@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="keywords" content="">
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <title>BalkanLingo</title>
+        <link rel="stylesheet" href="/css/addDic.css">
+    </head>
+    <body>
+        <!-- Navbar -->
+        {% include 'partials/navbar.html' %}
+        <div class="main">
+            <div class="flex-container profile-container">
+                <h1>UREDI PROFIL</h1>
+                <img class="profile-img" src="/images/woman-post.svg" alt="">
+
+                <form class="word-edit-top" action="/user/" method="POST">
+                    <div class="word-edit-container">
+                        <label for="home" class="word-edit-label ">IME</label>
+                        <input class="word-edit" type="text" id="home" name="name" value="{{ user.Name }}" required>
+                    </div>
+                    <div class="word-edit-container">
+                        <label for="home" class="word-edit-label ">PREZIME</label>
+                        <input class="word-edit" type="text" id="home" name="surname" value="{{ user.Surname }}" required>
+                    </div>
+                    <div class="save-changes-container">
+                        <button class="save-changes" type="submit">SPREMI PROMJENE</button>
+                        <img src="/images/blue-warning.png" alt="">
+                    </div>
+                    
+                </form>
+                <p><a id="pass-reset" href="/reset">Ne znaš lozinku?</a></p>
+                
+            </div>
+            
+        </div>
+        <hr>
+        <!-- Footer -->
+        {% include 'partials/footer.html' %}
+    </body>
+</html>

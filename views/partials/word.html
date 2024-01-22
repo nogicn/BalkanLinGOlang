@@ -1,0 +1,4 @@
+<div class="kahoot-card" {% if correct %} style="background-color: green" {% else %} style="background-color:red;" {% endif %}>
+    <div class="kahoot-word">{{ word.ForeignWord }}</div>
+    <div class="kahoot-phrase">HINT: {{ word.ForeignDescription }}</div>
+</div>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="keywords" content="">
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <title>BalkanLingo</title>
+        <link rel="stylesheet" href="/css/addDic.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <!-- Navbar -->
+        {% include 'partials/navbar.html' %}
+        <hr>
+        <div class="main">
+            <div class="flex-container">
+                <img class="two-aliens" src="images/two-aliens-deciding.svg" alt="">
+                {% for dictionary in dictionaries %}
+                <div class="language-add" onclick="location.href='/dictionary/addDictionaryToUser/{{ dictionary.ID }}';">
+                    <div class="language-name">{{ dictionary.Name }}</div>
+                    <img src="/images/black-add.png" alt="">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <hr>
+        <!-- Footer -->
+        {% include 'partials/footer.html' %}
+    </body>
+</html>

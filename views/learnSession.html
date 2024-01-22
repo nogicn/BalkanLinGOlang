@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="keywords" content="">
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <title>BalkanLingo</title>
+        <link rel="stylesheet" href="css/learnSes.css">
+        <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    </head>
+    <body>
+        <!-- Navbar -->
+        {% include 'partials/navbar.html' %}
+        <div class="main">
+            <div class="button-container">
+                <a href="/dashboard" style="opacity:0">
+                    <img src="images/orange-home.png" alt="">
+                    <p>završi sesiju učenja</p>
+                </a>
+            </div>
+            {% include 'partials/words.html' %}
+            <div class="button-container">
+                <a href="/learnSession/{{ dictionaryId }}" style="opacity:0">
+                    <img src="images/orange-next.png" alt="">
+                    <p>sljedeće pitanje</p>
+                </a>
+            </div>
+        </div>
+        <hr>
+        <!-- Footer -->
+        {% include 'partials/footer.html' %}
+        <script>
+            document.body.addEventListener('htmx:afterSwap', function(event) {
+                // Select all 'div' elements
+                var divs = document.querySelectorAll('div');
+            
+                // Loop through each 'div' and remove the 'hx-post' attribute
+                divs.forEach(function(div) {
+                     if (div.hasAttribute('hx-post')) {
+                        div.removeAttribute('hx-post');
+                        div.removeAttribute('hx-target');
+                        div.removeAttribute('hx-trigger');
+                        // add atrribute to div
+                        div.setAttribute('hx-disable', '');
+                     }
+                });
+
+                // Select all 'a' elements 
+                var as = document.querySelectorAll('a');
+
+                // Loop through each 'a' and set their opacity to 1
+                as.forEach(function(a) {
+                    a.style.opacity = 1;
+                });
+
+                // select next question div
+                var nextQuestionDiv = document.querySelector('.next-question a');
+                // select return home div
+                var returnHomeDiv = document.querySelector('.return-home a');
+                // select invisible buttons div
+                nextQuestionDiv.style.display = 'flex';
+                returnHomeDiv.style.display = 'flex';
+            
+            });
+        </script>
+    </body>
+</html>

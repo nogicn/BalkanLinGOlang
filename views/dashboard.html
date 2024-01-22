@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <meta name="keywords" content="">
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+        <title>BalkanLingo</title>
+        <link rel="stylesheet" href="css/dashboard.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <!-- Navbar -->
+        {% include 'partials/navbar.html' %}
+        <div class="main">
+            <!-- Main content -->
+            {% for dictionary in dictionaries %}
+                <div class="dictionary" style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ dictionary.ImageLink }}');">
+                  <h3 class="dictionary-name">{{ dictionary.FlagIcon }} {{ dictionary.Name }}</h3>
+                  <div class="button-container">
+                    {% if IsAdmin %}
+                        <button style="padding: 4px 10px; width: 100%;"><a href="/learnSession/{{ dictionary.ID }}"><b>TEST</b></a></button>
+                        <button style="padding: 4px 10px; width: 100%;"><a href="/dictionary/dictSearch/{{ dictionary.ID }}"><b>UREDI RIJEČI</b></a></button>
+                        <button style="padding: 4px 10px; width: 100%;"><a href="/dictionary/adminEditDict/{{ dictionary.ID }}"><b>POSTAVKE</b></a></button>
+                       <!-- <button style="padding: 4px 10px; width: 100%;"><a href="/dictionary/removeDictionary/{{ dictionary.ID }}"><b>OBRIŠI</b></a></button>-->
+                    {% else %}
+                        <button style="padding: 4px 4px;"><a href="/learnSession/{{ dictionary.ID }}"><b>ODABERI</b></a></button>
+                        <button id="obrisi" style="padding: 4px 4px;"><a href="dictionary/removeDictionary/{{ dictionary.ID }}"><b>OBRIŠI</b></a></button>
+                    {% endif %}
+                  </div>
+                </div>
+            {% endfor %}
+            
+            <div class="add-dictionary" onclick="location.href='dictionary/addDictionary';">
+                <a href="/dictionary/addDictionary" style="all: unset;">
+                    <div class="add-button"><img src="images/orange-add.png" alt=""></div>
+                    <p>DODAJ NOVI<br>RJEČNIK</p>
+                </a>
+            </div>
+        </div>
+        <hr>
+        <!-- Footer -->
+        {% include 'partials/footer.html' %}
+        <script>
+            // Select all elements with id=obrisi
+            const deleteButtons = document.querySelectorAll("#obrisi");
+        
+            // Iterate through each button and attach the event listener
+            deleteButtons.forEach(deleteButton => {
+                deleteButton.addEventListener("click", function (e) {
+                    e.preventDefault();
+        
+                    // Retrieve the href attribute of the a in the button
+                    const deleteUrl = deleteButton.querySelector("a").getAttribute("href");
+        
+                    Swal.fire({
+                        title: "Obriši?",
+                        text: "Jeste li sigurni da želite obrisati rječnik?",
+                        showCancelButton: true,
+                        heightAuto: false,
+                        confirmButtonColor: '#2ec4b6',
+                        cancelButtonText: 'Odustani',
+                        confirmButtonText: 'Obriši',
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            // Redirect to the URL on confirmation
+                            window.location.href = deleteUrl;
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
