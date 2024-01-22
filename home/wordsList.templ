@@ -1,0 +1,19 @@
+package home
+
+import  "BalkanLinGO/models/worddb"
+import "strconv"
+
+
+templ Words(words []worddb.Word){
+<div id="words" style="all: unset; display: contents;">
+    for _, word := range words {
+        <div class="word-add">
+            <div class="actual-word">{ word.ForeignWord }</div>
+            <div class="word-buttons">
+                <a href={ templ.URL( "/dictionary/editWord/"+strconv.Itoa(word.ID)) }><img class="edit-button" src="/images/blue-edit.png" alt=""></img></a>
+                <a href={ templ.URL( "/dictionary/deleteWord/"+strconv.Itoa(word.ID)) }><img class="add-button" src="/images/black-remove.png" alt=""></img></a>
+            </div>
+        </div>
+    }
+</div>
+}

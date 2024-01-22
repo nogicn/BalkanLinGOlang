@@ -3,16 +3,19 @@ package main
 import (
 	"BalkanLinGO/db"
 	"BalkanLinGO/routes"
-	"bytes"
 	"log"
 
+	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/session"
 
 	//"github.com/gofiber/template/html/v2"
 	"github.com/gofiber/template/django/v3"
 	"github.com/joho/godotenv"
+
+	// a-h templ
+	"BalkanLinGO/home"
 )
 
 //templ generate
@@ -46,7 +49,7 @@ func main() {
 	// add store to ap
 
 	// create locals
-	app.Use(compress.New(compress.Config{
+	/*app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 
 		Next: func(c *fiber.Ctx) bool {
@@ -63,7 +66,7 @@ func main() {
 			return true
 
 		},
-	}))
+	}))*/
 	//app.Use(pprof.New())
 
 	//app.Use(cache.New())
@@ -76,6 +79,12 @@ func main() {
 	routes.UsersRouter(app, session)
 	routes.IndexRouter(app, session)
 	routes.DictionaryRouter(app, session)
+
+	app.Get("/test", func(c *fiber.Ctx) error {
+		handler := adaptor.HTTPHandler(templ.Handler(home.Home()))
+
+		return handler(c)
+	})
 
 	log.Fatal(app.Listen(":3000"))
 

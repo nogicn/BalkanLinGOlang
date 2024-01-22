@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/a-h/templ v0.2.513 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/gofiber/fiber/v3 v3.0.0-20240121073223-827013d789ec // indirect

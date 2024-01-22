@@ -2,6 +2,7 @@ package dictionarycontroller
 
 import (
 	"BalkanLinGO/db"
+	"BalkanLinGO/home"
 	"BalkanLinGO/models/activequestiondb"
 	"BalkanLinGO/models/dictionarydb"
 	"BalkanLinGO/models/dictionaryuserdb"
@@ -10,7 +11,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 )
 
 func Dashboard(c *fiber.Ctx) error {
@@ -341,6 +344,32 @@ func SearchWords(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 		return c.Render("partials/wordsList", fiber.Map{"words": words})
+
+	}
+}
+
+func SearchWords2(c *fiber.Ctx) error {
+	// get user from locals
+	isAdmin := c.Locals("is_admin").(int)
+	id := c.Params("id")
+	word := c.FormValue("word")
+	// convert to int
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
+	}
+
+	if isAdmin == 0 {
+		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
+	} else {
+		words, err := worddb.SearchWordByDictionaryID(db.DB, idInt, word)
+		if err != nil {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
+		}
+
+		handler := adaptor.HTTPHandler(templ.Handler(home.Words(words)))
+
+		return handler(c)
 
 	}
 }
