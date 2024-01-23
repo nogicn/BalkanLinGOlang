@@ -4,18 +4,18 @@
         <h3>ODABERI TOČAN PRIJEVOD</h3>
     </div>
     <div class="word-and-phrase">
-        <p class="word-hrv"><%= currentWord.nativeWord %></p>
-        <p class="phrase-hrv"><%= currentWord.nativeDescription %></p>
+        <p class="word-hrv">{{ currentWord.NativeWord }}</p>
+        <p class="phrase-hrv">{{ currentWord.NativeDescription }}</p>
     </div>
     <div class="kahoot-area">
-        <% for (let i = 0; i < words.length; i++) { %>
-        <div hx-post="/dictionary/checkWord/<%= words[i].id %>" hx-target="this" hx-trigger="click">
+        {% for word in words %}
+        <div hx-post="/dictionary/checkWord/{{ word.ID }}" hx-target="this" hx-trigger="click">
             <div class="kahoot-card" id="card">
-                <div class="kahoot-word"><%= words[i].foreignWord %></div>
-                <div class="kahoot-phrase">HINT: <%= words[i].foreignDescription %></div>
+                <div class="kahoot-word">{{ word.ForeignWord }}</div>
+                <div class="kahoot-phrase">HINT: {{ word.ForeignDescription }}</div>
             </div>
         </div>
-        <% } %>
+        {% endfor %}
     </div>
     <div class="invisible-buttons"> <!-- Ovo ima istu funkcionalnost kao i button-container, samo se ovo prikazuje kad je mal ekran -->
         <div class="return-home">
@@ -25,7 +25,7 @@
             </a>
         </div>
         <div class="next-question">
-            <a href="/learnSession/<%= dictionaryId %>">
+            <a href="/learnSession/{{ dictionaryId }}">
                 <img src="/images/orange-next.png" alt="">
                 <p>sljedeće pitanje</p>
             </a>

@@ -5,9 +5,9 @@ import (
 	"BalkanLinGO/models/activequestiondb"
 	"BalkanLinGO/models/userworddb"
 	"BalkanLinGO/models/worddb"
-	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,22 +19,26 @@ func LearnSession(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).SendString("Invalid ID")
 	}
-	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("id").(int))
-	fmt.Println(activequestion)
-	fmt.Println(err)
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
+	//fmt.Println(activequestion)
+	//fmt.Println(err)
 
-	if err != nil {
-		fmt.Println("No active question")
-		userWord, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("id").(int), idInt)
-		fmt.Println(userWord)
+	// check if activequestion exists
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
+		//fmt.Println("No active question")
+		words, err := worddb.GetAllWordsNotInUserWord(db.DB, c.Locals("user_id").(int))
+
 		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/login"})
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/dashboard"})
 		}
-		fmt.Println(words)
+		//fmt.Println("rijeci", words)
 		for _, word := range words {
-			currentDate := time.Now()
+			if word.DictionaryID != idInt {
+				continue
+			}
+			currentDate := time.Now().Add(-time.Hour * 24 * 30)
 			var trueword = userworddb.UserWord{
-				UserID:       c.Locals("id").(int),
+				UserID:       c.Locals("user_id").(int),
 				WordID:       word.ID,
 				Active:       1,
 				Delay:        0,
@@ -42,21 +46,22 @@ func LearnSession(c *fiber.Ctx) error {
 			}
 			err := userworddb.CreateUserWord(db.DB, &trueword)
 			if err != nil {
-				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod stvaranja riječi!", "link": "/login"})
+				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod stvaranja riječi!", "link": "/dashboard"})
 			}
 		}
 
 		// check if activequestion exists
 
 		activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
-		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/login"})
+		if !strings.Contains(err.Error(), "no rows in result set") {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/dashboard"})
+
 		}
 
 		if activeword.DictionaryID != idInt {
 			err := activequestiondb.DeleteActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 			if err != nil {
-				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod brisanja aktivne riječi!", "link": "/login"})
+				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod brisanja aktivne riječi!", "link": "/dashboard"})
 			}
 			LearnSessionForeignNative(c)
 		}
@@ -76,34 +81,42 @@ func LearnSession(c *fiber.Ctx) error {
 	} else {
 		LearnSessionForeignNative(c)
 	}
-	return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/login"})
+	return nil
 }
 
 func LearnSessionForeignNative(c *fiber.Ctx) error {
 	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
+	//fmt.Println(activequestion, err)
 	if err != nil {
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/login"})
+		if !strings.Contains(err.Error(), "no rows in result") {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi activequestion", "link": "/dashboard"})
+		}
 	}
+
 	dictid := c.Params("id")
 	dictidInt, err := strconv.Atoi(dictid)
 	if err != nil {
 		return c.Status(400).SendString("Invalid ID")
 	}
-	if activequestion != (activequestiondb.ActiveQuestion{}) {
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
 		userWords, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("user_id").(int), dictidInt)
 		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/login"})
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi! nema rijeci za dict", "link": "/dashboard"})
 		}
+		//fmt.Println("rijeci", words)
+		//fmt.Println("userWords", userWords)
 		if len(userWords) < 4 {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Nema više riječi za učenje!", "link": "/login"})
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Nema više riječi za učenje!", "link": "/dashboard"})
 		}
+		finalWords := []worddb.Word{}
 		// get 4 random words
 		for i := 0; i < 4; i++ {
+			////fmt.Println("generating ")
 			// generate random number between 1 and number of words in dictionary
-			random := rand.Intn(len(userWords))
+			random := rand.Intn(len(words))
 			duplicate := false
-			for j := 0; j < len(userWords); j++ {
-				if userWords[j].ID == userWords[random].ID {
+			for j := 0; j < len(finalWords); j++ {
+				if finalWords[j].ID == words[random].ID {
 					duplicate = true
 					break
 				}
@@ -112,24 +125,73 @@ func LearnSessionForeignNative(c *fiber.Ctx) error {
 				i--
 				continue
 			}
-			userWords = append(userWords, userWords[random])
+			finalWords = append(finalWords, worddb.Word(words[random]))
 		}
 		// set random word as active question
-		random := rand.Intn(len(userWords))
-		activequestion.WordID = userWords[random].ID
+		random := rand.Intn(len(finalWords))
+		activequestion.WordID = finalWords[random].ID
+		activequestion.UserID = c.Locals("user_id").(int)
 		activequestion.Type = 1
 		err = activequestiondb.SetActiveQuestion(db.DB, &activequestion)
 		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod stvaranja aktivne riječi!", "link": "/login"})
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod stvaranja aktivne riječi!", "link": "/dashboard"})
 		}
 		// swap values of foreign and native word from userWord
-		for i := 0; i < len(words); i++ {
-			if words[i].ID == userWords[random].WordID {
-				words[i].ForeignWord, words[i].NativeWord = words[i].NativeWord, words[i].ForeignWord
+		for i := 0; i < len(finalWords); i++ {
+			if finalWords[i].ID == userWords[random].WordID {
+				finalWords[i].ForeignWord, finalWords[i].NativeWord = finalWords[i].NativeWord, finalWords[i].ForeignWord
 			}
 		}
-		return c.Render("learnSessionForeignNative", fiber.Map{"words": words, "activequestion": activequestion})
+		return c.Render("learnSession", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": finalWords[random]})
+
+	} else {
+		// do the same thing but without setting the active queston and only randoming 3 words
+		userWords, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("user_id").(int), dictidInt)
+		if err != nil {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi! nema rijeci za dict", "link": "/dashboard"})
+		}
+		////fmt.Println("rijeci", words)
+		//fmt.Println("userWords", userWords)
+		if len(userWords) < 4 {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Nema više riječi za učenje!", "link": "/dashboard"})
+		}
+		finalWords := []worddb.Word{}
+		// add active question to final words
+		activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
+		if err != nil {
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
+		}
+		finalWords = append(finalWords, activeword)
+		// get 4 random words
+		for i := 0; i < 3; i++ {
+			////fmt.Println("generating ")
+			// generate random number between 1 and number of words in dictionary
+			random := rand.Intn(len(words))
+			duplicate := false
+			for j := 0; j < len(finalWords); j++ {
+				if finalWords[j].ID == words[random].ID {
+					duplicate = true
+					break
+				}
+			}
+			if duplicate {
+				i--
+				continue
+			}
+			finalWords = append(finalWords, worddb.Word(words[random]))
+		}
+		var random int
+		// swap values of foreign and native word from userWord
+		for i := 0; i < len(finalWords); i++ {
+			if finalWords[i].ID == userWords[random].WordID {
+				finalWords[i].ForeignWord, finalWords[i].NativeWord = finalWords[i].NativeWord, finalWords[i].ForeignWord
+			}
+		}
+		// randomize word order in finalWords
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
+		return c.Render("learnSession", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword})
 
 	}
-	return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/login"})
+
 }

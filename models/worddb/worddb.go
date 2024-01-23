@@ -54,7 +54,7 @@ const (
     `
 
 	getAllWordsNotInUserWord = `
-        SELECT * FROM word WHERE id NOT IN (SELECT word_id FROM user_word WHERE user_id = @userId);
+        SELECT * FROM word WHERE id NOT IN (SELECT word_id as id FROM user_word WHERE user_id = @userId);
     `
 )
 

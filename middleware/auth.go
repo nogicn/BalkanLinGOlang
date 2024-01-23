@@ -19,14 +19,14 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	// get user with session id 1
 	user, err := userdb.GetUserById(db, 1)
 
-	c.Locals("id", user.ID)
+	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
 	c.Locals("surname", user.Surname)
 	c.Locals("email", user.Email)
 	c.Locals("is_admin", user.IsAdmin)
 	c.Locals("token", user.Token)
 
-	session.Set("id", user.ID)
+	session.Set("user_id", user.ID)
 	session.Set("name", user.Name)
 	session.Set("surname", user.Surname)
 	session.Set("email", user.Email)

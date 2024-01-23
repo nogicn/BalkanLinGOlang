@@ -8,7 +8,7 @@
         <meta name="keywords" content="">
         <link rel="icon" type="image/x-icon" href="images/favicon.ico">
         <title>BalkanLingo</title>
-        <link rel="stylesheet" href="css/learnSes.css">
+        <link rel="stylesheet" href="/css/learnSes.css">
         <script src="https://unpkg.com/htmx.org@1.9.9"></script>
     </head>
     <body>
@@ -17,14 +17,14 @@
         <div class="main">
             <div class="button-container">
                 <a href="/dashboard" style="opacity:0">
-                    <img src="images/orange-home.png" alt="">
+                    <img src="/images/orange-home.png" alt="">
                     <p>završi sesiju učenja</p>
                 </a>
             </div>
             {% include 'partials/words.html' %}
             <div class="button-container">
                 <a href="/learnSession/{{ dictionaryId }}" style="opacity:0">
-                    <img src="images/orange-next.png" alt="">
+                    <img src="/images/orange-next.png" alt="">
                     <p>sljedeće pitanje</p>
                 </a>
             </div>

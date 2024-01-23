@@ -31,7 +31,7 @@ func main() {
 	//engine := html.New("./views", ".html")
 	engine := django.New("./views", ".html")
 	//engine.Reload(true) // Optional. Default: false
-	//engine.Debug(true) // Optional. Default: false
+	//engine.Debug(true)  // Optional. Default: false
 
 	/*Store := memory.New(memory.Config{
 		GCInterval: 6000 * time.Second,
@@ -73,7 +73,7 @@ func main() {
 	db.Init()
 	//defer db.DB.Close()
 	app.Static("/", "./public", fiber.Static{
-		Compress: true,
+		Compress: false,
 	})
 
 	routes.UsersRouter(app, session)

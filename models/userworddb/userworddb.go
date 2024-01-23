@@ -41,7 +41,6 @@ const (
         WHERE user_word.word_id = word.id
         AND user_word.user_id = @userId
         AND word.dictionary_id = @dictionaryId
-        AND active = 1
         AND strftime('%s', 'now') - strftime('%s ', SUBSTR(last_answered, 1, 19)) > delay * 24 * 60 * 60;
     `
 
@@ -51,7 +50,6 @@ const (
         WHERE user_word.word_id = word.id
         AND user_word.user_id = @userId
         AND word.dictionary_id = @dictionaryId
-        AND active = 1
         AND word.id NOT IN (
             SELECT word_id FROM active_question WHERE user_id = @userId
         )
