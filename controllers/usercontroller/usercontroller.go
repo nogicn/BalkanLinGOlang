@@ -118,12 +118,17 @@ func LoginUser(c *fiber.Ctx, s *session.Store) error {
 		}
 
 		// Set user as authenticated
-		session.Set("name", user.Name)
-		session.Set("surname", user.Surname)
-		session.Set("email", user.Email)
 		session.Set("is_admin", user.IsAdmin)
 		session.Set("id", user.ID)
 		session.Set("token", user.Token)
+
+		c.Locals("user_id", user.ID)
+		c.Locals("name", user.Name)
+		c.Locals("surname", user.Surname)
+		c.Locals("email", user.Email)
+		c.Locals("is_admin", user.IsAdmin)
+		c.Locals("token", user.Token)
+
 		err = session.Save()
 		if err != nil {
 			return c.Status(500).SendString(err.Error())

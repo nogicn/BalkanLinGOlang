@@ -28,7 +28,6 @@ func DictionaryRouter(app *fiber.App, session *session.Store) {
 	route.Get("/deleteWord/:id", dictionarycontroller.DeleteWord)
 
 	route.Post("/search/:id", dictionarycontroller.SearchWords)
-	route.Post("/search2/:id", dictionarycontroller.SearchWords2)
 
 	route.Get("/adminLocales", dictionarycontroller.AdminLocales)
 	route.Get("/editLocale/:id", dictionarycontroller.EditLocale)

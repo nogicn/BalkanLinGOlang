@@ -5,17 +5,12 @@ import (
 	"BalkanLinGO/routes"
 	"log"
 
-	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/session"
 
 	//"github.com/gofiber/template/html/v2"
 	"github.com/gofiber/template/django/v3"
 	"github.com/joho/godotenv"
-
-	// a-h templ
-	"BalkanLinGO/home"
 )
 
 //templ generate
@@ -80,11 +75,11 @@ func main() {
 	routes.IndexRouter(app, session)
 	routes.DictionaryRouter(app, session)
 
-	app.Get("/test", func(c *fiber.Ctx) error {
+	/*app.Get("/test", func(c *fiber.Ctx) error {
 		handler := adaptor.HTTPHandler(templ.Handler(home.Home()))
 
 		return handler(c)
-	})
+	})*/
 
 	log.Fatal(app.Listen(":3000"))
 

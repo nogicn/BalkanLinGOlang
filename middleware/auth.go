@@ -15,9 +15,17 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 
 	db := db.DB
 	// get session
-	session, _ := store.Get(c)
-	// get user with session id 1
-	user, err := userdb.GetUserById(db, 1)
+	session, err := store.Get(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// check if session exists
+	/*if session.Get("id") == nil {
+		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+	}*/
+	// get user with session id
+	//user, err := userdb.GetUserById(db, session.Get("id").(int))
+	user, _ := userdb.GetUserById(db, 1)
 
 	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
@@ -67,12 +75,12 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	}
 
 	// set locals
-	c.Locals("id", session.Get("id").(int))
-	c.Locals("name", session.Get("name").(string))
-	c.Locals("surname", session.Get("surname").(string))
-	c.Locals("email", session.Get("email").(string))
-	c.Locals("is_admin", session.Get("is_admin").(int))
-	c.Locals("token", session.Get("token").(string))
+	/*	c.Locals("id", session.Get("id").(int))
+		c.Locals("name", session.Get("name").(string))
+		c.Locals("surname", session.Get("surname").(string))
+		c.Locals("email", session.Get("email").(string))
+		c.Locals("is_admin", session.Get("is_admin").(int))
+		c.Locals("token", session.Get("token").(string))*/
 
 	return c.Next()
 }
