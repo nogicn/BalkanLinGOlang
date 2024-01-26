@@ -34,7 +34,7 @@
                 <img class="say" src="/images/orange-mic.png" alt="" id="recordButton">
                 <input hidden type="file" name="pronunciation" id="audioInput" accept="audio/*">
                 <audio id="audioPlayer" controls></audio>
-                <div hx-post="/dictionary/checkListening/{{ word.id }}" hx-target="#answer" hx-include="#formData" hx-trigger="click" class="check">PROVJERA</div>
+                <div hx-post="/dictionary/checkListening/{{ word.ID }}" hx-target="#answer" hx-include="#formData" hx-trigger="click" class="check">PROVJERA</div>
                 <div id="answer"></div>
             </div>
             <div class="invisible-buttons">

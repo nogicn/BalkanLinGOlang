@@ -18,7 +18,7 @@
             <div class="flex-container">
                 <h2 class="language-title">{{ dictionary.Name }}</h2>
                 <input class="word-search" type="text" placeholder="Pretrazi strane rijeci..."  name="word"
-                hx-post="/dictionary/search2/{{ dictionary.ID }}" 
+                hx-post="/dictionary/search/{{ dictionary.ID }}" 
                 hx-trigger="input changed delay:100ms, search" 
                 hx-target="#words"
                 hx-swap="outerHTML">

@@ -11,6 +11,7 @@ const (
             type INTEGER NOT NULL DEFAULT 1, -- (1, 2, 3)
             FOREIGN KEY (user_id) REFERENCES user(id),
             FOREIGN KEY (word_id) REFERENCES word(id)
+            UNIQUE (user_id, word_id)
         );
     `
 
@@ -23,7 +24,9 @@ const (
     `
 
 	setActiveQuestion = `
-        INSERT INTO active_question (user_id, word_id, type) VALUES (@userId, @wordId, @type);
+    INSERT OR REPLACE INTO active_question (user_id, word_id, type) 
+    VALUES (@userId, @wordId, @type);
+    
     `
 
 	getActiveQuestion = `

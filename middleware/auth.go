@@ -19,13 +19,15 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	// check if session exists
-	/*if session.Get("id") == nil {
-		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
-	}*/
-	// get user with session id
-	//user, err := userdb.GetUserById(db, session.Get("id").(int))
-	user, _ := userdb.GetUserById(db, 1)
+	if session == nil {
+		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+	}
+	if session.Get("user_id") == interface{}(nil) {
+		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+	}
+	userid := session.Get("user_id").(int)
+	user, err := userdb.GetUserById(db, userid)
+	//user, _ := userdb.GetUserById(db, 1)
 
 	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
@@ -34,38 +36,18 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	c.Locals("is_admin", user.IsAdmin)
 	c.Locals("token", user.Token)
 
-	session.Set("user_id", user.ID)
+	/*session.Set("user_id", user.ID)
 	session.Set("name", user.Name)
 	session.Set("surname", user.Surname)
 	session.Set("email", user.Email)
 	session.Set("is_admin", user.IsAdmin)
 	session.Set("token", user.Token)
 	err = session.Save()
-	return c.Next()
+	return c.Next()*/
 
 	if err != nil {
 		fmt.Println(err)
 		// if htmx, send redirect
-		if c.Get("HX-Request") == "true" {
-			// set header
-			c.Set("HX-Redirect", "/login")
-			return c.SendStatus(401)
-		}
-		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
-	}
-	if session.Get("id") == nil {
-		fmt.Println(err)
-		if c.Get("HX-Request") == "true" {
-			// set header
-			c.Set("HX-Redirect", "/login")
-			return c.SendStatus(401)
-		}
-		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
-	}
-	// get user from session
-	_, err = userdb.GetUserById(db, session.Get("id").(int))
-	if err != nil {
-		fmt.Println(err)
 		if c.Get("HX-Request") == "true" {
 			// set header
 			c.Set("HX-Redirect", "/login")

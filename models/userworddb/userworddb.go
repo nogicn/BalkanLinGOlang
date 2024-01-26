@@ -55,12 +55,16 @@ const (
         )
         AND strftime('%s', 'now') - strftime('%s ', SUBSTR(last_answered, 1, 19)) > delay * 24 * 60 * 60;
     `
-
+	// if sent delay is not 0, then increase delay by 1
 	setNewDelayForUser = `
         UPDATE user_word
-        SET delay = @delay
-        WHERE user_id = @userId
-        AND word_id = @wordId;
+        SET delay = CASE
+			WHEN @delay = 0 THEN delay = 0
+			ELSE delay + 1
+			END
+		WHERE user_id = @userId
+		AND word_id = @wordId;
+		
     `
 
 	deactivateWordForUser = `

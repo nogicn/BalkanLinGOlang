@@ -3,6 +3,7 @@ package routes
 import (
 	//"BalkanLinGO/controllers"
 	"BalkanLinGO/controllers/dictionarycontroller"
+	"BalkanLinGO/controllers/wordcontroller"
 	"BalkanLinGO/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,7 +30,8 @@ func DictionaryRouter(app *fiber.App, session *session.Store) {
 
 	route.Post("/search/:id", dictionarycontroller.SearchWords)
 
-	route.Get("/adminLocales", dictionarycontroller.AdminLocales)
-	route.Get("/editLocale/:id", dictionarycontroller.EditLocale)
-	route.Post("/saveLocale", dictionarycontroller.SaveLocale)
+	route.Post("checkWord/:answer", wordcontroller.CheckAnswer)
+	route.Post("checkWriting/:answer", wordcontroller.CheckWritingAnswer)
+	route.Post("checkListening/:answer", wordcontroller.CheckListeningAnswer)
+
 }

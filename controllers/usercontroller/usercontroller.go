@@ -119,7 +119,7 @@ func LoginUser(c *fiber.Ctx, s *session.Store) error {
 
 		// Set user as authenticated
 		session.Set("is_admin", user.IsAdmin)
-		session.Set("id", user.ID)
+		session.Set("user_id", user.ID)
 		session.Set("token", user.Token)
 
 		c.Locals("user_id", user.ID)
@@ -162,7 +162,7 @@ func SetAdmin(c *fiber.Ctx) error {
 	}
 
 	// get user from database
-	curUser, err := userdb.GetUserById(db.DB, c.Locals("id").(int))
+	curUser, err := userdb.GetUserById(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -196,7 +196,7 @@ func ListUsers(c *fiber.Ctx) error {
 }
 
 func EditUser(c *fiber.Ctx) error {
-	id := c.Locals("id").(int)
+	id := c.Locals("user_id").(int)
 	// check if nil
 	if id == 0 {
 		return c.Status(500).SendString("Error")
