@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 
 	//"github.com/gofiber/template/html/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/django/v3"
 	"github.com/joho/godotenv"
 )
@@ -39,7 +40,7 @@ func main() {
 		//Prefork:           true,
 	})
 	// debug
-	//app.Use(logger.New())
+	app.Use(logger.New())
 
 	// add store to ap
 
