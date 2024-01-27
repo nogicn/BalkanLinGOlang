@@ -69,7 +69,7 @@ func AddLocale(c *fiber.Ctx) error {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 
 	} else {
-		return c.Render("localeAddAdmin", fiber.Map{"IsAdmin": c.Locals("is_admin")})
+		return c.Render("locale/localeAddAdmin", fiber.Map{"IsAdmin": c.Locals("is_admin")})
 	}
 }
 
@@ -83,7 +83,7 @@ func AdminLocales(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		return c.Render("dictionaryLocales", fiber.Map{"languages": languages, "IsAdmin": c.Locals("is_admin")})
+		return c.Render("locale/showLocales", fiber.Map{"languages": languages, "IsAdmin": c.Locals("is_admin")})
 	}
 }
 

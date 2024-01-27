@@ -48,7 +48,7 @@ func AddDictionary(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}
-		return c.Render("addDictionary", fiber.Map{"dictionaries": dictionaries, "IsAdmin": c.Locals("is_admin")})
+		return c.Render("dictionary/addDictionary", fiber.Map{"dictionaries": dictionaries, "IsAdmin": c.Locals("is_admin")})
 	} else {
 		// get all dictionaries
 		dictionaries, err := dictionarydb.GetAllDictionaries(db.DB)
@@ -59,7 +59,7 @@ func AddDictionary(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju jezika!", "link": "/dashboard"})
 		}
-		return c.Render("dictionaryAddAdmin", fiber.Map{"dictionaries": dictionaries, "IsAdmin": c.Locals("is_admin"), "languages": languages})
+		return c.Render("dictionary/dictionaryAddAdmin", fiber.Map{"dictionaries": dictionaries, "IsAdmin": c.Locals("is_admin"), "languages": languages})
 	}
 }
 
@@ -102,7 +102,7 @@ func AdminEditDict(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju jezika!", "link": "/dashboard"})
 		}
-		return c.Render("dictionaryAddAdmin", fiber.Map{"dictionary": dict, "IsAdmin": c.Locals("is_admin"), "languages": languages})
+		return c.Render("dictionary/dictionaryAddAdmin", fiber.Map{"dictionary": dict, "IsAdmin": c.Locals("is_admin"), "languages": languages})
 	}
 }
 
@@ -203,7 +203,7 @@ func SearchDictionary(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju reči!", "link": "/dashboard"})
 		}
 
-		return c.Render("dictSearch", fiber.Map{"dictionary": dictionaries, "IsAdmin": c.Locals("is_admin"), "words": words})
+		return c.Render("dictionary/dictSearch", fiber.Map{"dictionary": dictionaries, "IsAdmin": c.Locals("is_admin"), "words": words})
 	}
 }
 
@@ -225,7 +225,7 @@ func SearchWords(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		return c.Render("partials/wordsList", fiber.Map{"words": words})
+		return c.Render("word/partials/wordsList", fiber.Map{"words": words})
 
 	}
 }

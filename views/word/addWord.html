@@ -10,24 +10,18 @@
         <title>BalkanLingo</title>
         <link rel="stylesheet" href="/css/addDic.css">
         <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+        <link rel="stylesheet" href="/css/loader.css">
     </head>
     <body>
         <!-- Navbar -->
-        {% include 'partials/navbar.html' %}
-        <div class="main">
-            <div class="flex-container">
-                <h2 class="language-title">Uređivanje jezika</h2>
-                <br>
-                <div class="img-container">
-                    <a href="addLocale/"><img src="/images/black-add.png" alt=""> </a>
-                </div>
-               
-                {% include 'partials/locales.html' %}
-                <a href="/"><img class="home-image" src="/images/orange-home.png" alt=""></a>
+        {% include './partials/navbar.html' %}
+        <form action="/word/addWord/{{ dictionary.ID }}" method="POST" style="all: unset;">
+            <div class="main">
+                {% include './word/partials/wordsEdit.html' %}
             </div>
-        </div>
+        </form>
         <hr>
         <!-- Footer -->
-        {% include 'partials/footer.html' %}
+        {% include './partials/footer.html' %}
     </body>
 </html>

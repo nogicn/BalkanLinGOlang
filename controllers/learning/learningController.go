@@ -120,7 +120,7 @@ func LearnSessionForeignNative(c *fiber.Ctx) error {
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
 	activeword.ForeignWord, activeword.NativeWord = activeword.NativeWord, activeword.ForeignWord
 	activeword.ForeignDescription, activeword.NativeDescription = activeword.NativeDescription, activeword.ForeignDescription
-	return c.Render("learnSession", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 2})
+	return c.Render("learn/selectWord", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 2})
 
 }
 
@@ -158,7 +158,7 @@ func LearnSessionNativeForeign(c *fiber.Ctx) error {
 
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
-	return c.Render("learnSession", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 3})
+	return c.Render("learn/selectWord", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 3})
 
 }
 
@@ -182,7 +182,7 @@ func LearnSessionWriting(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
-	return c.Render("writeWord", fiber.Map{"word": activeword, "dictionaryId": dictidInt, "next": 4})
+	return c.Render("learn/writeWord", fiber.Map{"word": activeword, "dictionaryId": dictidInt, "next": 4})
 
 }
 
@@ -204,7 +204,7 @@ func LearnSessionPronunciation(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
-	return c.Render("sayWord", fiber.Map{"word": activeword, "dictionaryId": dictidInt, "next": 1})
+	return c.Render("learn/sayWord", fiber.Map{"word": activeword, "dictionaryId": dictidInt, "next": 1})
 
 }
 
@@ -262,7 +262,7 @@ func CheckAnswer(c *fiber.Ctx) error {
 		correct = false
 	}
 	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
-	return c.Render("partials/word", fiber.Map{"word": activeword, "correct": correct})
+	return c.Render("learn/partials/word", fiber.Map{"word": activeword, "correct": correct})
 
 }
 
@@ -306,7 +306,7 @@ func CheckWritingAnswer(c *fiber.Ctx) error {
 		correct = false
 	}
 	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
-	return c.Render("partials/word", fiber.Map{"word": activeword, "correct": correct})
+	return c.Render("learn/partials/writeWordAnswer", fiber.Map{"word": activeword, "correct": correct})
 
 }
 
@@ -347,6 +347,6 @@ func CheckListeningAnswer(c *fiber.Ctx) error {
 		correct = false
 	}
 	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
-	return c.Render("partials/word", fiber.Map{"word": activeword, "correct": correct})
+	return c.Render("learn/partials/sayWordAnswer", fiber.Map{"word": activeword, "correct": correct})
 
 }

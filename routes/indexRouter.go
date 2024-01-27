@@ -16,15 +16,19 @@ func IndexRouter(app *fiber.App, session *session.Store) {
 
 	route := app.Group("/")
 	route.Get("/", func(c *fiber.Ctx) error {
-		return c.SendFile("./views/home.html", true)
+		return c.Render("auth/home", fiber.Map{"title": "Home"})
 	})
 
 	route.Get("/register", func(c *fiber.Ctx) error {
-		return c.Render("register", fiber.Map{"title": "Register"})
+		return c.Render("auth/register", fiber.Map{"title": "Register"})
 	})
 
 	route.Get("/login", func(c *fiber.Ctx) error {
-		return c.Render("login", fiber.Map{"title": "Login"})
+		return c.Render("auth/login", fiber.Map{"title": "Login"})
+	})
+
+	route.Get("/reset", func(c *fiber.Ctx) error {
+		return c.Render("auth/resetPass", fiber.Map{"title": "Reset"})
 	})
 
 	route.Get("/learn", func(c *fiber.Ctx) error {

@@ -14,14 +14,14 @@
     </head>
     <body>
         <!-- Navbar -->
-        {% include 'partials/navbar.html' %}
-        <form action="/dictionary/addWord/{{ dictionary.ID }}" method="POST" style="all: unset;">
+        {% include './partials/navbar.html' %}
+        <form action="/word/editWord/{{ dictionary.ID }}" method="POST" style="all: unset;" id="data">
             <div class="main">
-                {% include 'partials/wordsEdit.html' %}
+                {% include './word/partials/wordsEdit.html' %}
             </div>
         </form>
         <hr>
         <!-- Footer -->
-        {% include 'partials/footer.html' %}
+        {% include './partials/footer.html' %}
     </body>
 </html>

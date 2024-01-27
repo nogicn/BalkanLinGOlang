@@ -9,17 +9,23 @@
         <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
         <title>BalkanLingo</title>
         <link rel="stylesheet" href="/css/addDic.css">
-        <script src="https://unpkg.com/htmx.org@1.9.9"></script>
-        <link rel="stylesheet" href="/css/loader.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
     <body>
         <!-- Navbar -->
         {% include 'partials/navbar.html' %}
-        <form action="/dictionary/editWord/{{ dictionary.ID }}" method="POST" style="all: unset;" id="data">
-            <div class="main">
-                {% include 'partials/wordsEdit.html' %}
+        <hr>
+        <div class="main">
+            <div class="flex-container">
+                <img class="two-aliens" src="/images/two-aliens-deciding.svg" alt="">
+                {% for dictionary in dictionaries %}
+                <div class="language-add" onclick="location.href='/dictionary/addDictionaryToUser/{{ dictionary.ID }}';">
+                    <div class="language-name">{{ dictionary.Name }}</div>
+                    <img src="/images/black-add.png" alt="">
+                </div>
+                {% endfor %}
             </div>
-        </form>
+        </div>
         <hr>
         <!-- Footer -->
         {% include 'partials/footer.html' %}

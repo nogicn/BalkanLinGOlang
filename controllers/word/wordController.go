@@ -32,7 +32,7 @@ func EditWord(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		return c.Render("editWord", fiber.Map{"word": word, "IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
+		return c.Render("word/editWord", fiber.Map{"word": word, "IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
 	}
 }
 
@@ -92,7 +92,7 @@ func AddWord(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		return c.Render("addWord", fiber.Map{"IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
+		return c.Render("word/addWord", fiber.Map{"IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
 	}
 }
 

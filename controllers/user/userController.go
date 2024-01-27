@@ -19,7 +19,7 @@ func GetUsers(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	return c.Render("userSearch", fiber.Map{"users": users, "title": "User Search", "IsAdmin": c.Locals("is_admin")})
+	return c.Render("user/userSearch", fiber.Map{"users": users, "title": "User Search", "IsAdmin": c.Locals("is_admin")})
 }
 
 // DeleteUser deletes a user by ID
@@ -68,7 +68,7 @@ func CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
-		return c.Render("resetPassNotif", fiber.Map{})
+		return c.Render("auth/resetPassNotif", fiber.Map{})
 	}
 }
 
@@ -168,7 +168,7 @@ func SetAdmin(c *fiber.Ctx) error {
 	}
 
 	// send partial to client but render it first
-	return c.Render("partials/userRow", fiber.Map{"users": user})
+	return c.Render("user/partials/userRow", fiber.Map{"users": user})
 
 }
 
@@ -178,7 +178,7 @@ func ListUsers(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	return c.Render("partials/userList", fiber.Map{"users": users})
+	return c.Render("user/partials/userList", fiber.Map{"users": users})
 }
 
 func EditUser(c *fiber.Ctx) error {
@@ -192,7 +192,7 @@ func EditUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	return c.Render("userEdit", fiber.Map{"user": user})
+	return c.Render("user/userEdit", fiber.Map{"user": user})
 }
 
 func UpdateUser(c *fiber.Ctx) error {

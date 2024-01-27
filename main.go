@@ -76,6 +76,7 @@ func main() {
 	routes.IndexRouter(app, session)
 	routes.DictionaryRouter(app, session)
 	routes.LocaleRouter(app, session)
+	routes.WordRouter(app, session)
 
 	/*app.Get("/test", func(c *fiber.Ctx) error {
 		handler := adaptor.HTTPHandler(templ.Handler(home.Home()))

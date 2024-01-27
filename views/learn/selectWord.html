@@ -13,7 +13,7 @@
     </head>
     <body>
         <!-- Navbar -->
-        {% include 'partials/navbar.html' %}
+        {% include './partials/navbar.html' %}
         <div class="main">
             <div class="button-container">
                 <a href="/dashboard" style="opacity:0">
@@ -21,7 +21,7 @@
                     <p>završi sesiju učenja</p>
                 </a>
             </div>
-            {% include 'partials/words.html' %}
+            {% include './learn/partials/words.html' %}
             <div class="button-container">
                 <a href="/learnSession/{{ dictionaryId }}" style="opacity:0">
                     <img src="/images/orange-next.png" alt="">
@@ -31,7 +31,7 @@
         </div>
         <hr>
         <!-- Footer -->
-        {% include 'partials/footer.html' %}
+        {% include './partials/footer.html' %}
         <script>
             document.body.addEventListener('htmx:afterSwap', function(event) {
                 // Select all 'div' elements
