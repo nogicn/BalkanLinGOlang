@@ -1,6 +1,10 @@
 <div class="navbar" style="background-image: url('/images/freckleOverlay.png');">
     <div class="navbar-left">
+        {% if auth == false %}
+        <a href="/login"><img src="/images/logoM.png" alt=""></a>
+        {% else %}
         <a href="/dashboard"><img src="/images/logoM.png" alt=""></a>
+        {% endif %}
     </div>
     <div class="navbar-right">
         {% if user.IsAdmin || IsAdmin %}

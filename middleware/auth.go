@@ -20,10 +20,10 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 		fmt.Println(err)
 	}
 	if session == nil {
-		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login", "auth": false})
 	}
 	if session.Get("user_id") == interface{}(nil) {
-		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login", "auth": false})
 	}
 	userid := session.Get("user_id").(int)
 	user, err := userdb.GetUserById(db, userid)
@@ -53,7 +53,7 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 			c.Set("HX-Redirect", "/login")
 			return c.SendStatus(401)
 		}
-		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login"})
+		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login", "auth": false})
 	}
 
 	// set locals
