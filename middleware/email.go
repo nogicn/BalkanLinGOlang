@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"net/smtp"
+	"os"
 )
 
-func SendEmail(email, password string) error {
+func SendEmail(email string) error {
+	// get password from env
+	password := os.Getenv("EMAIL_PASSWORD")
 
 	auth := smtp.PlainAuth("", "balkanlingo@gmail.com", password, "smtp.gmail.com")
 
