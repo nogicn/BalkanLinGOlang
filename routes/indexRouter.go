@@ -2,8 +2,8 @@ package routes
 
 import (
 	//"BalkanLinGO/controllers"
-	"BalkanLinGO/controllers/dictionarycontroller"
-	"BalkanLinGO/controllers/wordcontroller"
+	dictionarycontroller "BalkanLinGO/controllers/dictionary"
+	learningcontroller "BalkanLinGO/controllers/learning"
 	"BalkanLinGO/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,5 +41,5 @@ func IndexRouter(app *fiber.App, session *session.Store) {
 
 	route.Get("/learnSession/:id", func(c *fiber.Ctx) error {
 		return middleware.CheckAuth(c, session)
-	}, wordcontroller.LearnSession)
+	}, learningcontroller.LearnSession)
 }

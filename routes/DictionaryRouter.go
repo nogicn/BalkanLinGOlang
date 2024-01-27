@@ -2,8 +2,9 @@ package routes
 
 import (
 	//"BalkanLinGO/controllers"
-	"BalkanLinGO/controllers/dictionarycontroller"
-	"BalkanLinGO/controllers/wordcontroller"
+	dictionarycontroller "BalkanLinGO/controllers/dictionary"
+	learningcontroller "BalkanLinGO/controllers/learning"
+	wordcontroller "BalkanLinGO/controllers/word"
 	"BalkanLinGO/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,16 +23,16 @@ func DictionaryRouter(app *fiber.App, session *session.Store) {
 	route.Get("/addDictionaryToUser/:id", dictionarycontroller.AddDictionaryToUser)
 	route.Get("/dictSearch/:id", dictionarycontroller.SearchDictionary)
 
-	route.Get("/editWord/:id", dictionarycontroller.EditWord)
-	route.Post("/editWord/:id", dictionarycontroller.SaveWord)
-	route.Get("/addWord/:id", dictionarycontroller.AddWord)
-	route.Post("/addWord/:id", dictionarycontroller.SaveWord)
-	route.Get("/deleteWord/:id", dictionarycontroller.DeleteWord)
+	route.Get("/editWord/:id", wordcontroller.EditWord)
+	route.Post("/editWord/:id", wordcontroller.SaveWord)
+	route.Get("/addWord/:id", wordcontroller.AddWord)
+	route.Post("/addWord/:id", wordcontroller.SaveWord)
+	route.Get("/deleteWord/:id", wordcontroller.DeleteWord)
 
 	route.Post("/search/:id", dictionarycontroller.SearchWords)
 
-	route.Post("checkWord/:answer", wordcontroller.CheckAnswer)
-	route.Post("checkWriting/:answer", wordcontroller.CheckWritingAnswer)
-	route.Post("checkListening/:answer", wordcontroller.CheckListeningAnswer)
+	route.Post("checkWord/:answer", learningcontroller.CheckAnswer)
+	route.Post("checkWriting/:answer", learningcontroller.CheckWritingAnswer)
+	route.Post("checkListening/:answer", learningcontroller.CheckListeningAnswer)
 
 }

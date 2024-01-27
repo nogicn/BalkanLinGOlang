@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"BalkanLinGO/controllers/usercontroller"
+	usercontroller "BalkanLinGO/controllers/user"
 	"BalkanLinGO/middleware"
 
 	"github.com/gofiber/fiber/v2"
