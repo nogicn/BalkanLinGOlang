@@ -20,7 +20,7 @@ func Dashboard(c *fiber.Ctx) error {
 	var dictionaries []dictionarydb.Dictionary
 	var err error
 	if isAdmin == 0 {
-		id := c.Locals("id").(int)
+		id := c.Locals("user_id").(int)
 		dictionaries, err = dictionarydb.GetDictionariesForUser(db.DB, id)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
@@ -43,7 +43,7 @@ func AddDictionary(c *fiber.Ctx) error {
 	isAdmin := c.Locals("is_admin").(int)
 	if isAdmin == 0 {
 		// get all dictionaries not assigned to user
-		id := c.Locals("id").(int)
+		id := c.Locals("user_id").(int)
 		dictionaries, err := dictionarydb.GetDictionariesNotAssignedToUser(db.DB, id)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
@@ -65,7 +65,7 @@ func AddDictionary(c *fiber.Ctx) error {
 
 func AddDictionaryToUser(c *fiber.Ctx) error {
 	// get user from locals
-	id := c.Locals("id").(int)
+	id := c.Locals("user_id").(int)
 	dictID := c.Params("id")
 	// convert to int
 	dictIDInt, err := strconv.Atoi(dictID)
@@ -152,7 +152,7 @@ func RemoveDictionary(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}
-		dictionaryuserdb.DeleteDictionaryFromUser(db.DB, c.Locals("id").(int), dictIDInt)
+		dictionaryuserdb.DeleteDictionaryFromUser(db.DB, c.Locals("user_id").(int), dictIDInt)
 
 	} else {
 		id := c.Params("id")
@@ -227,71 +227,5 @@ func SearchWords(c *fiber.Ctx) error {
 		}
 		return c.Render("partials/wordsList", fiber.Map{"words": words})
 
-	}
-}
-
-func AdminLocales(c *fiber.Ctx) error {
-	// get user from locals
-	isAdmin := c.Locals("is_admin").(int)
-	if isAdmin == 0 {
-		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
-	} else {
-		languages, err := languagedb.GetAllLanguages(db.DB)
-		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
-		}
-		return c.Render("dictionaryLocales", fiber.Map{"languages": languages, "IsAdmin": c.Locals("is_admin")})
-	}
-}
-
-func EditLocale(c *fiber.Ctx) error {
-	// get user from locals
-	isAdmin := c.Locals("is_admin").(int)
-	if isAdmin == 0 {
-		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
-	} else {
-		id := c.Params("id")
-		// convert to int
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
-		}
-		language, err := languagedb.GetLanguageById(db.DB, idInt)
-		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
-		}
-
-		return c.Render("localeAddAdmin", fiber.Map{"locale": language, "IsAdmin": c.Locals("is_admin")})
-	}
-}
-
-func SaveLocale(c *fiber.Ctx) error {
-	// get user from locals
-	isAdmin := c.Locals("is_admin").(int)
-	if isAdmin == 0 {
-		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
-	} else {
-
-		// get data from form
-		name := c.FormValue("name")
-		shorthand := c.FormValue("shorthand")
-		flagIcon := c.FormValue("flagIcon")
-		id := c.FormValue("id")
-		if id == "" {
-			err := languagedb.CreateLanguage(db.DB, &languagedb.Language{Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
-			if err != nil {
-				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju jezika!", "link": "/dashboard"})
-			}
-		} else {
-			idInt, err := strconv.Atoi(id)
-			if err != nil {
-				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
-			}
-			err = languagedb.UpdateLanguage(db.DB, &languagedb.Language{ID: idInt, Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
-			if err != nil {
-				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju jezika!", "link": "/dashboard"})
-			}
-		}
-		return c.Redirect("/dictionary/adminLocales")
 	}
 }

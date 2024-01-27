@@ -5,9 +5,7 @@ import (
 	"BalkanLinGO/middleware"
 	"BalkanLinGO/models/userdb"
 	"fmt"
-	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -43,16 +41,6 @@ func DeleteUser(c *fiber.Ctx) error {
 	return c.Status(200).SendString("User deleted")
 }
 
-func randStringBytes(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
-
 func CreateUser(c *fiber.Ctx) error {
 	name := c.FormValue("name")
 
@@ -62,8 +50,6 @@ func CreateUser(c *fiber.Ctx) error {
 	// create random string for password
 
 	password := randStringBytes(12)
-
-	// TODO: Hash the password using bcrypt
 
 	newuser := userdb.User{
 		Name:     name,

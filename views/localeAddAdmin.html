@@ -21,7 +21,7 @@
 
                 <!--defenirati u BP sve sto nam treba za rjecnik pa fixati u value poljima-->
 
-                <form class="word-edit-top" action="/dictionary/saveLocale" method="POST">
+                <form class="word-edit-top" action="/locale/saveLocale" method="POST">
                     <input type="hidden" name="id" value="{% if locale %}{{ locale.ID }}{% endif %}">
                     <div class="word-edit-container">
                         <label for="name" class="word-edit-label ">IME</label>

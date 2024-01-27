@@ -66,7 +66,7 @@ const (
 		UPDATE user SET is_admin = not is_admin WHERE id = @id RETURNING *;
 	`
 	getAllUsersLikeEmail = `
-		SELECT * FROM user WHERE email LIKE '%' || @email;
+		SELECT * FROM user WHERE email LIKE @email;
 	`
 )
 
@@ -179,7 +179,7 @@ func DeleteUserById(dbase *sql.DB, id int) error {
 
 func GetAllUsersLikeEmail(dbase *sql.DB, email string) ([]User, error) {
 	var users []User
-	rows, err := dbase.Query(getAllUsersLikeEmail, email)
+	rows, err := dbase.Query(getAllUsersLikeEmail, email+"%")
 	if err != nil {
 		return nil, err
 	}

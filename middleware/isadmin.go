@@ -17,21 +17,15 @@ func IsAdmin(store *session.Store) fiber.Handler {
 		if err != nil {
 			return c.Redirect("/login")
 		}
-		// get user from session
-		user := userdb.User{}
-		if err := db.QueryRow("SELECT id, name, surname, email, is_admin FROM user WHERE id = ?", session).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.IsAdmin); err != nil {
+		// get user from db
+		user, err := userdb.GetUserById(db, session.Get("user_id").(int))
+		if err != nil {
 			return c.Redirect("/login")
 		}
 
 		if user.IsAdmin == 0 {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Nemate pristup ovoj stranici!", "link": "/dashboard"})
 		}
-
-		// set locals
-		c.Locals("name", user.Name)
-		c.Locals("surname", user.Surname)
-		c.Locals("email", user.Email)
-		c.Locals("is_admin", user.IsAdmin)
 
 		return c.Next()
 	}
