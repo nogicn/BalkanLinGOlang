@@ -26,8 +26,8 @@ func main() {
 
 	//engine := html.New("./views", ".html")
 	engine := django.New("./views", ".html")
-	engine.Reload(true) // Optional. Default: false
-	engine.Debug(true)  // Optional. Default: false
+	//engine.Reload(true) // Optional. Default: false
+	//engine.Debug(true)  // Optional. Default: false
 
 	/*Store := memory.New(memory.Config{
 		GCInterval: 6000 * time.Second,

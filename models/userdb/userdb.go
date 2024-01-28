@@ -1,6 +1,8 @@
 package userdb
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 const (
 	createUserTable = `
@@ -71,13 +73,13 @@ const (
 )
 
 type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Surname  string `json:"surname"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	IsAdmin  int    `json:"is_admin"`
-	Token    string `json:"token"`
+	ID       int            `json:"id"`
+	Name     string         `json:"name"`
+	Surname  string         `json:"surname"`
+	Email    string         `json:"email"`
+	Password string         `json:"password"`
+	IsAdmin  int            `json:"is_admin"`
+	Token    sql.NullString `json:"token"`
 }
 
 func CreateUserTable(dbase *sql.DB) error {
@@ -145,11 +147,12 @@ func GetUserById(dbase *sql.DB, id int) (User, error) {
 func GetUserByEmail(dbase *sql.DB, email string) (User, error) {
 	var user User
 	err := dbase.QueryRow(getUserByEmail, email).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
+
 	return user, err
 }
 
 func UpdateTokenByEmail(dbase *sql.DB, email string, token string) (User, error) {
-	var user User
+	var user User = User{}
 	err := dbase.QueryRow(updateTokenByEmail, token, email).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
@@ -162,7 +165,7 @@ func UpdateTokenById(dbase *sql.DB, id int, token string) (User, error) {
 
 func UpdatePasswordByEmail(dbase *sql.DB, email string, password string) (User, error) {
 	var user User
-	err := dbase.QueryRow(updatePasswordByEmail, email, password).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
+	err := dbase.QueryRow(updatePasswordByEmail, password, email).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
 

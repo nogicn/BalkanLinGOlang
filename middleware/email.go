@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func SendEmail(email string) error {
+func SendEmail(email string, userpass string) error {
 	// get password from env
 	password := os.Getenv("EMAIL_PASSWORD")
 
@@ -34,7 +34,7 @@ func SendEmail(email string) error {
 					</p>
 					<img style="display:none">
 					<p style="color: #666;">
-						<strong>Jednokratna lozinka:</strong> ` + password + `
+						<strong>Jednokratna lozinka:</strong> ` + userpass + `
 					</p>
 					<div class="button-container" style="text-align: center;">
 						<a href="https://balkanlingo.online/login" class="button" style="display: inline-block;

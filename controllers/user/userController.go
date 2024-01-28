@@ -63,13 +63,43 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	err = middleware.SendEmail(email)
+	err = middleware.SendEmail(email, password)
 
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
 		return c.Render("auth/resetPassNotif", fiber.Map{})
 	}
+}
+
+func CreatePass(c *fiber.Ctx, s *session.Store) error {
+	password := c.FormValue("password")
+	password2 := c.FormValue("password2")
+	email := c.FormValue("email")
+
+	if password != password2 {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Lozinke se ne poklapaju!", "link": "/login"})
+	}
+	hash := []byte(password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(hash, bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println(err)
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
+	}
+
+	_, err = userdb.UpdatePasswordByEmail(db.DB, email, string(hashedPassword))
+	if err != nil {
+		fmt.Println(err)
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
+	}
+
+	err = loginProcedure(c, s, userdb.User{}, email, password)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
+	}
+
+	return c.Redirect("/dashboard")
+
 }
 
 func LoginUser(c *fiber.Ctx, s *session.Store) error {
@@ -80,44 +110,19 @@ func LoginUser(c *fiber.Ctx, s *session.Store) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	fmt.Println(user)
+	fmt.Println(user.Password, password, user.Password == password)
 	// Compare passwords
 	if user.Password == password {
-		c.Render("createPass", fiber.Map{"email": email})
+		return c.Render("auth/createPass", fiber.Map{"email": email})
 	} else {
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Pogrešna lozinka ili korisnik!", "link": "/login"})
 		}
 
-		// Create session
-		session, err := s.Get(c)
+		err = loginProcedure(c, s, user, email, password)
 		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
-		// create token
-		token := randStringBytes(32)
-		// Update token in database
-		user, err = userdb.UpdateTokenByEmail(db.DB, email, token)
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
-
-		// Set user as authenticated
-		session.Set("is_admin", user.IsAdmin)
-		session.Set("user_id", user.ID)
-		session.Set("token", user.Token)
-
-		c.Locals("user_id", user.ID)
-		c.Locals("name", user.Name)
-		c.Locals("surname", user.Surname)
-		c.Locals("email", user.Email)
-		c.Locals("is_admin", user.IsAdmin)
-		c.Locals("token", user.Token)
-
-		err = session.Save()
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
+			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
 		}
 
 		return c.Redirect("/dashboard")
