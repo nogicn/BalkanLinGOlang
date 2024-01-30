@@ -128,28 +128,28 @@ func DeleteWord(c *fiber.Ctx) error {
 }
 
 func CreatePronunciation(c *fiber.Ctx) error {
+	id := c.FormValue("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
+	}
 	// get all data from form as word
-	wordid := c.Params("id")
+	dictionaryID := c.Params("id")
 	// convert to int
-	wordidInt, err := strconv.Atoi(wordid)
+	dictionaryIDInt, err := strconv.Atoi(dictionaryID)
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
 	}
 	word := worddb.Word{
-		ID:                 wordidInt,
+		ID:                 idInt,
 		ForeignWord:        c.FormValue("foreignWord"),
 		ForeignDescription: c.FormValue("foreignDescription"),
 		NativeWord:         c.FormValue("nativeWord"),
 		NativeDescription:  c.FormValue("nativeDescription"),
 		Pronunciation:      c.FormValue("pronunciation"),
 	}
-	id := c.FormValue("id")
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
-	}
 
-	dictionary, err := dictionarydb.GetDictionaryById(db.DB, idInt)
+	dictionary, err := dictionarydb.GetDictionaryById(db.DB, dictionaryIDInt)
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
 	}
