@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 
 	//"github.com/gofiber/template/html/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+
 	"github.com/gofiber/template/django/v3"
 	"github.com/joho/godotenv"
 )
@@ -26,8 +26,8 @@ func main() {
 
 	//engine := html.New("./views", ".html")
 	engine := django.New("./views", ".html")
-	engine.Reload(true) // Optional. Default: false
-	engine.Debug(true)  // Optional. Default: false
+	//engine.Reload(true) // Optional. Default: false
+	//engine.Debug(true)  // Optional. Default: false
 
 	/*Store := memory.New(memory.Config{
 		GCInterval: 6000 * time.Second,
@@ -40,7 +40,7 @@ func main() {
 		//Prefork:           true,
 	})
 	// debug
-	app.Use(logger.New())
+	//app.Use(logger.New())
 
 	// add store to ap
 
@@ -58,7 +58,7 @@ func main() {
 					}
 
 				}
-				return true // set to true to disable
+				return false // set to true to disable
 			}
 			return true
 		},
