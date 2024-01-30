@@ -30,4 +30,8 @@ func UsersRouter(app *fiber.App, session *session.Store) {
 	route.Post("/setAdmin/:id", func(c *fiber.Ctx) error {
 		return middleware.CheckAuth(c, session)
 	}, usercontroller.SetAdmin)
+	route.Post("/reset", func(c *fiber.Ctx) error {
+		return middleware.CheckAuth(c, session)
+	}, usercontroller.ResetPass)
+
 }

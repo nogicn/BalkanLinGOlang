@@ -66,7 +66,7 @@ func CreateUser(c *fiber.Ctx) error {
 	err = middleware.SendEmail(email, password)
 
 	if err != nil {
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
 		return c.Render("auth/resetPassNotif", fiber.Map{})
 	}
@@ -78,24 +78,24 @@ func CreatePass(c *fiber.Ctx, s *session.Store) error {
 	email := c.FormValue("email")
 
 	if password != password2 {
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Lozinke se ne poklapaju!", "link": "/login"})
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Lozinke se ne poklapaju!", "link": "/login"})
 	}
 	hash := []byte(password)
 	hashedPassword, err := bcrypt.GenerateFromPassword(hash, bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Println(err)
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
 	}
 
 	_, err = userdb.UpdatePasswordByEmail(db.DB, email, string(hashedPassword))
 	if err != nil {
 		fmt.Println(err)
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
 	}
 
 	err = loginProcedure(c, s, userdb.User{}, email, password)
 	if err != nil {
-		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
 	}
 
 	return c.Redirect("/dashboard")
@@ -117,18 +117,17 @@ func LoginUser(c *fiber.Ctx, s *session.Store) error {
 	} else {
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Pogrešna lozinka ili korisnik!", "link": "/login"})
+			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Pogrešna lozinka ili korisnik!", "link": "/login"})
 		}
 
 		err = loginProcedure(c, s, user, email, password)
 		if err != nil {
-			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
+			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
 		}
 
 		return c.Redirect("/dashboard")
 	}
 
-	return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Pogrešna lozinka ili korisnik!", "link": "/login"})
 }
 
 func LogoutUser(c *fiber.Ctx, s *session.Store) error {
@@ -211,4 +210,35 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect("/user/edit")
+}
+
+func ResetPass(c *fiber.Ctx) error {
+	email := c.FormValue("email")
+
+	user, err := userdb.GetUserByEmail(db.DB, email)
+	if err != nil {
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Korisnik ne postoji!", "link": "/login"})
+	}
+	// create new random password
+	password := randStringBytes(12)
+
+	err = middleware.SendEmail(email, password)
+	if err != nil {
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
+	}
+	_, err = userdb.UpdatePasswordByEmail(db.DB, email, password)
+
+	//err = middleware.SendEmail(email, user.Password)
+
+	if err != nil {
+		// return last user password
+		_, errin := userdb.UpdatePasswordByEmail(db.DB, email, user.Password)
+		if errin != nil {
+			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri popravljanju greške!", "link": "/login"})
+		}
+
+		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
+	} else {
+		return c.Render("auth/resetPassNotif", fiber.Map{})
+	}
 }

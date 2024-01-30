@@ -8,22 +8,12 @@
         <label for="home" class="word-edit-label">DOMAĆA RIJEČ</label>
         <input class="word-edit" type="text" id="home" name="nativeWord" placeholder="Riječ" value="{{ word.NativeWord }}"
             required>
-        <div class="img-container">
-            <img src="/images/black-add.png" alt="" hx-post="/dictionary/fillWordData/{{ dictionary.ID }}"
-                hx-target="#wordContainer" hx-swap="outerHTML" hx-indicator="#loading" hx-include="#data">
-
-        </div>
     </div>
 
     <div class="word-edit-container">
         <label for="home" class="word-edit-label word-edit-phrase">DOMAĆA FRAZA</label>
         <input class="word-edit" type="text" id="home" name="nativeDescription" placeholder="Naučio sam ovu riječ"
             value='{{ word.NativeDescription }}' required>
-        <div class="img-container">
-            <img src="/images/black-add.png" alt="" hx-post="/dictionary/fillSentenceData/{{ dictionary.ID }}"
-                hx-target="#wordContainer" hx-swap="outerHTML" hx-indicator="#loading" hx-include="#data">
-
-        </div>
     </div>
     <div class="word-edit-container">
         <label for="home" class="word-edit-label ">STRANA RIJEČ</label>
@@ -50,7 +40,7 @@
 
         </audio>
         <div class="img-container" style="display: inline-block; vertical-align: super;">
-            <img src="/images/black-add.png" alt="" hx-post="/dictionary/createPronunciation/{{ dictionary.ID }}"
+            <img src="/images/black-add.png" alt="" hx-post="/word/createPronunciation/{{ dictionary.ID }}"
                 hx-target="#wordContainer" hx-swap="outerHTML" hx-indicator="#loading" hx-include="#data">
         </div>
     </div>

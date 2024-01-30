@@ -20,4 +20,7 @@ func WordRouter(app *fiber.App, session *session.Store) {
 	route.Post("/addWord/:id", wordcontroller.SaveWord)
 	route.Get("/deleteWord/:id", wordcontroller.DeleteWord)
 
+	//route.Post("/fillWordData/:id", wordcontroller.FillWordData)
+	route.Post("/createPronunciation/:id", wordcontroller.CreatePronunciation)
+
 }

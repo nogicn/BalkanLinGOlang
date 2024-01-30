@@ -48,6 +48,7 @@ require (
 	github.com/gofiber/storage/memory/v2 v2.0.0
 	github.com/gofiber/template/django/v3 v3.1.7
 	github.com/google/uuid v1.5.0 // indirect
+	github.com/haguro/elevenlabs-go v0.2.2
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.17.4 // indirect

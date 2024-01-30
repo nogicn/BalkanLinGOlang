@@ -2,6 +2,7 @@ package word_controller
 
 import (
 	"BalkanLinGO/db"
+	"BalkanLinGO/middleware"
 	"BalkanLinGO/models/activequestiondb"
 	"BalkanLinGO/models/dictionarydb"
 	"BalkanLinGO/models/worddb"
@@ -124,4 +125,41 @@ func DeleteWord(c *fiber.Ctx) error {
 		}
 		return c.Redirect("/dictionary/dictSearch/" + strconv.Itoa(dictID))
 	}
+}
+
+func CreatePronunciation(c *fiber.Ctx) error {
+	// get all data from form as word
+	wordid := c.Params("id")
+	// convert to int
+	wordidInt, err := strconv.Atoi(wordid)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
+	}
+	word := worddb.Word{
+		ID:                 wordidInt,
+		ForeignWord:        c.FormValue("foreignWord"),
+		ForeignDescription: c.FormValue("foreignDescription"),
+		NativeWord:         c.FormValue("nativeWord"),
+		NativeDescription:  c.FormValue("nativeDescription"),
+		Pronunciation:      c.FormValue("pronunciation"),
+	}
+	id := c.FormValue("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
+	}
+
+	dictionary, err := dictionarydb.GetDictionaryById(db.DB, idInt)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
+	}
+
+	filename := randStringBytes(32) + ".mp3"
+	err = middleware.GenerateSpeech(word.ForeignWord, filename)
+	if err != nil {
+		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri generisanju izgovora!", "link": "/"})
+	}
+
+	word.Pronunciation = filename
+	return c.Render("word/partials/wordsEdit", fiber.Map{"word": word, "dictionary": dictionary})
 }
