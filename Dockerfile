@@ -5,7 +5,7 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 # Copy the Go binary into the container
-COPY app/ ./
+COPY * /app/
 
 # Expose any necessary ports (if your Go binary listens on a specific port)
 EXPOSE 3000
