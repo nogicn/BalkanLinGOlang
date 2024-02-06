@@ -59,7 +59,7 @@ func CreateLanguageTable(db *sql.DB) error {
 }
 
 func CreateLanguage(db *sql.DB, language *Language) error {
-	_, err := db.Exec(createNewLanguage, language.Name, language.Shorthand, language.FlagIcon)
+	_, err := db.Exec(createNewLanguage, sql.Named("name", language.Name), sql.Named("shorthand", language.Shorthand), sql.Named("flagIcon", language.FlagIcon))
 	return err
 }
 
@@ -103,16 +103,16 @@ func GetShorthands(db *sql.DB) ([]string, error) {
 
 func GetLanguageByID(db *sql.DB, id int) (Language, error) {
 	var language Language
-	err := db.QueryRow(getLanguageByID, id).Scan(&language.ID, &language.Name, &language.Shorthand, &language.FlagIcon)
+	err := db.QueryRow(getLanguageByID, sql.Named("id", id)).Scan(&language.ID, &language.Name, &language.Shorthand, &language.FlagIcon)
 	return language, err
 }
 
 func DeleteLanguageByID(db *sql.DB, id int) error {
-	_, err := db.Exec(deleteLanguageByID, id)
+	_, err := db.Exec(deleteLanguageByID, sql.Named("id", id))
 	return err
 }
 
 func UpdateLanguage(db *sql.DB, language *Language) error {
-	_, err := db.Exec(updateLanguage, language.Name, language.Shorthand, language.FlagIcon, language.ID)
+	_, err := db.Exec(updateLanguage, sql.Named("name", language.Name), sql.Named("shorthand", language.Shorthand), sql.Named("flagIcon", language.FlagIcon), sql.Named("id", language.ID))
 	return err
 }

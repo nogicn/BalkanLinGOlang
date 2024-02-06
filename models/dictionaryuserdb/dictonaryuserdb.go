@@ -42,23 +42,23 @@ func CreateDictionaryUserTable(db *sql.DB) error {
 }
 
 func AddDictionaryToUser(db *sql.DB, userID, dictionaryID int) error {
-	_, err := db.Exec(addDictionaryToUser, userID, dictionaryID)
+	_, err := db.Exec(addDictionaryToUser, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	return err
 }
 
 func DeleteDictionaryFromUser(db *sql.DB, userID, dictionaryID int) error {
-	_, err := db.Exec(deleteDictionaryFromUser, userID, dictionaryID)
+	_, err := db.Exec(deleteDictionaryFromUser, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	return err
 }
 
 func GetDictionaryUserByID(db *sql.DB, id int) (DictionaryUser, error) {
 	var dictionaryUser DictionaryUser
-	err := db.QueryRow(getDictionaryByID, id).Scan(&dictionaryUser.ID, &dictionaryUser.UserID, &dictionaryUser.DictionaryID)
+	err := db.QueryRow(getDictionaryByID, sql.Named("id", id)).Scan(&dictionaryUser.ID, &dictionaryUser.UserID, &dictionaryUser.DictionaryID)
 	return dictionaryUser, err
 }
 
 func GetUserDictionaries(db *sql.DB, userID, dictionaryID int) ([]DictionaryUser, error) {
-	rows, err := db.Query(getUserDictionaries, userID, dictionaryID)
+	rows, err := db.Query(getUserDictionaries, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	if err != nil {
 		return nil, err
 	}

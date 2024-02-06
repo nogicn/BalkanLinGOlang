@@ -74,22 +74,22 @@ func CreateWordTable(db *sql.DB) error {
 }
 
 func CreateWord(db *sql.DB, word *Word) error {
-	_, err := db.Exec(createWord, word.ForeignWord, word.ForeignDescription, word.NativeWord, word.NativeDescription, word.Pronunciation, word.DictionaryID)
+	_, err := db.Exec(createWord, sql.Named("foreignWord", word.ForeignWord), sql.Named("foreignDescription", word.ForeignDescription), sql.Named("nativeWord", word.NativeWord), sql.Named("nativeDescription", word.NativeDescription), sql.Named("pronunciation", word.Pronunciation), sql.Named("dictionaryId", word.DictionaryID))
 	return err
 }
 
 func DeleteWordByID(db *sql.DB, wordID int) error {
-	_, err := db.Exec(deleteWordByID, wordID)
+	_, err := db.Exec(deleteWordByID, sql.Named("wordId", wordID))
 	return err
 }
 
 func DeleteWordByMeaning(db *sql.DB, foreignWord, foreignDescription, nativeWord, nativeDescription string) error {
-	_, err := db.Exec(deleteWordByMeaning, foreignWord, foreignDescription, nativeWord, nativeDescription)
+	_, err := db.Exec(deleteWordByMeaning, sql.Named("foreignWord", foreignWord), sql.Named("foreignDescription", foreignDescription), sql.Named("nativeWord", nativeWord), sql.Named("nativeDescription", nativeDescription))
 	return err
 }
 
 func GetWordsByDictionaryID(db *sql.DB, dictionaryID int) ([]Word, error) {
-	rows, err := db.Query(getWordByDictionaryID, dictionaryID)
+	rows, err := db.Query(getWordByDictionaryID, sql.Named("dictionaryId", dictionaryID))
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func GetWordsByDictionaryID(db *sql.DB, dictionaryID int) ([]Word, error) {
 }
 
 func DeleteWordsByDictionaryID(db *sql.DB, dictionaryID int) error {
-	_, err := db.Exec(deleteWordByDictionaryID, dictionaryID)
+	_, err := db.Exec(deleteWordByDictionaryID, sql.Named("dictionaryId", dictionaryID))
 	return err
 }
 
@@ -133,17 +133,17 @@ func GetAllWords(db *sql.DB) ([]Word, error) {
 
 func GetWordByID(db *sql.DB, wordID int) (Word, error) {
 	var word Word
-	err := db.QueryRow(getWordByID, wordID).Scan(&word.ID, &word.ForeignWord, &word.ForeignDescription, &word.NativeWord, &word.NativeDescription, &word.Pronunciation, &word.DictionaryID)
+	err := db.QueryRow(getWordByID, sql.Named("wordId", wordID)).Scan(&word.ID, &word.ForeignWord, &word.ForeignDescription, &word.NativeWord, &word.NativeDescription, &word.Pronunciation, &word.DictionaryID)
 	return word, err
 }
 
 func UpdateWord(db *sql.DB, word *Word) error {
-	_, err := db.Exec(updateWord, word.ForeignWord, word.ForeignDescription, word.NativeWord, word.NativeDescription, word.Pronunciation, word.ID)
+	_, err := db.Exec(updateWord, sql.Named("foreignWord", word.ForeignWord), sql.Named("foreignDescription", word.ForeignDescription), sql.Named("nativeWord", word.NativeWord), sql.Named("nativeDescription", word.NativeDescription), sql.Named("pronunciation", word.Pronunciation), sql.Named("wordId", word.ID))
 	return err
 }
 
 func SearchWordByDictionaryID(db *sql.DB, dictionaryID int, searchString string) ([]Word, error) {
-	rows, err := db.Query(searchWordByDictionaryID, dictionaryID, searchString)
+	rows, err := db.Query(searchWordByDictionaryID, sql.Named("dictionaryId", dictionaryID), sql.Named("word", searchString))
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func SearchWordByDictionaryID(db *sql.DB, dictionaryID int, searchString string)
 }
 
 func GetAllWordsNotInUserWord(db *sql.DB, userID int) ([]Word, error) {
-	rows, err := db.Query(getAllWordsNotInUserWord, userID)
+	rows, err := db.Query(getAllWordsNotInUserWord, sql.Named("userId", userID))
 	if err != nil {
 		return nil, err
 	}

@@ -111,7 +111,7 @@ func CreateUserWordTable(dbase *sql.DB) error {
 }
 
 func CreateUserWord(dbase *sql.DB, userWord *UserWord) error {
-	_, err := dbase.Exec(createUserWord, userWord.LastAnswered, userWord.Delay, userWord.Active, userWord.WordID, userWord.UserID)
+	_, err := dbase.Exec(createUserWord, sql.Named("lastAnswered", userWord.LastAnswered), sql.Named("delay", userWord.Delay), sql.Named("active", userWord.Active), sql.Named("wordId", userWord.WordID), sql.Named("userId", userWord.UserID))
 	return err
 }
 
@@ -121,7 +121,7 @@ func CreateIndexForUserWord(dbase *sql.DB) error {
 }
 
 func GetWordsForUserForDictionary(dbase *sql.DB, userID, dictionaryID int) ([]UserWord, []Word, error) {
-	rows, err := dbase.Query(getWordsForUserForDictionary, userID, dictionaryID)
+	rows, err := dbase.Query(getWordsForUserForDictionary, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -149,7 +149,7 @@ func GetWordsForUserForDictionary(dbase *sql.DB, userID, dictionaryID int) ([]Us
 }
 
 func GetViableWordsForUserForDictionary(dbase *sql.DB, userID, dictionaryID int) ([]UserWord, []Word, error) {
-	rows, err := dbase.Query(getViableWordsForUserForDictionary, userID, dictionaryID)
+	rows, err := dbase.Query(getViableWordsForUserForDictionary, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -177,7 +177,7 @@ func GetViableWordsForUserForDictionary(dbase *sql.DB, userID, dictionaryID int)
 }
 
 func GetViableWordsForUserForDictionaryWhereItIsntActiveQuestion(dbase *sql.DB, userID, dictionaryID int) ([]UserWord, []Word, error) {
-	rows, err := dbase.Query(getViableWordsForUserForDictionaryWhereItIsntActiveQuestion, userID, dictionaryID)
+	rows, err := dbase.Query(getViableWordsForUserForDictionaryWhereItIsntActiveQuestion, sql.Named("userId", userID), sql.Named("dictionaryId", dictionaryID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -205,17 +205,17 @@ func GetViableWordsForUserForDictionaryWhereItIsntActiveQuestion(dbase *sql.DB, 
 }
 
 func SetNewDelayForUser(dbase *sql.DB, userID, wordID, delay int) error {
-	_, err := dbase.Exec(setNewDelayForUser, delay, userID, wordID)
+	_, err := dbase.Exec(setNewDelayForUser, sql.Named("userId", userID), sql.Named("wordId", wordID), sql.Named("delay", delay))
 	return err
 }
 
 func DeactivateWordForUser(dbase *sql.DB, userID, wordID int) error {
-	_, err := dbase.Exec(deactivateWordForUser, userID, wordID)
+	_, err := dbase.Exec(deactivateWordForUser, sql.Named("userId", userID), sql.Named("wordId", wordID))
 	return err
 }
 
 func GetUserWordsByUserID(dbase *sql.DB, userID int) ([]UserWord, error) {
-	rows, err := dbase.Query(getUserWordByUserID, userID)
+	rows, err := dbase.Query(getUserWordByUserID, sql.Named("userId", userID))
 	if err != nil {
 		return nil, err
 	}
@@ -238,16 +238,16 @@ func GetUserWordsByUserID(dbase *sql.DB, userID int) ([]UserWord, error) {
 
 func GetDelayForWordForUser(dbase *sql.DB, userID, wordID int) (int, error) {
 	var delay int
-	err := dbase.QueryRow(getDelayForWordForUser, userID, wordID).Scan(&delay)
+	err := dbase.QueryRow(getDelayForWordForUser, sql.Named("userId", userID), sql.Named("wordId", wordID)).Scan(&delay)
 	return delay, err
 }
 
 func UpdateLastAnswered(dbase *sql.DB, userID, wordID int, lastAnswered string) error {
-	_, err := dbase.Exec(updateLastAnswered, lastAnswered, userID, wordID)
+	_, err := dbase.Exec(updateLastAnswered, sql.Named("userId", userID), sql.Named("wordId", wordID), sql.Named("lastAnswered", lastAnswered))
 	return err
 }
 
 func DeleteUserWordByID(dbase *sql.DB, wordID int) error {
-	_, err := dbase.Exec(deleteUserWordbyID, wordID)
+	_, err := dbase.Exec(deleteUserWordbyID, sql.Named("wordId", wordID))
 	return err
 }

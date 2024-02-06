@@ -79,12 +79,12 @@ func CreateDictionaryTable(db *sql.DB) error {
 }
 
 func CreateNewDictionary(db *sql.DB, dictionary *Dictionary) error {
-	_, err := db.Exec(createNewDictionary, dictionary.Name, dictionary.LanguageID, dictionary.ImageLink)
+	_, err := db.Exec(createNewDictionary, sql.Named("name", dictionary.Name), sql.Named("language_id", dictionary.LanguageID), sql.Named("imageLink", dictionary.ImageLink))
 	return err
 }
 
 func GetDictionariesForUser(db *sql.DB, userID int) ([]Dictionary, error) {
-	rows, err := db.Query(getDictionariesForUser, userID)
+	rows, err := db.Query(getDictionariesForUser, sql.Named("userID", userID))
 	if err != nil {
 		return nil, err
 	}
@@ -141,12 +141,12 @@ func GetAllDictionariesWithIcons(db *sql.DB) ([]Dictionary, error) {
 }
 
 func DeleteDictionary(db *sql.DB, id int) error {
-	_, err := db.Exec(deleteDictionary, id)
+	_, err := db.Exec(deleteDictionary, sql.Named("id", id))
 	return err
 }
 
 func GetDictionariesNotAssignedToUser(db *sql.DB, userID int) ([]Dictionary, error) {
-	rows, err := db.Query(getDictionariesNotAssignedToUser, userID)
+	rows, err := db.Query(getDictionariesNotAssignedToUser, sql.Named("userID", userID))
 	if err != nil {
 		return nil, err
 	}
@@ -166,11 +166,11 @@ func GetDictionariesNotAssignedToUser(db *sql.DB, userID int) ([]Dictionary, err
 
 func GetDictionaryByID(db *sql.DB, id int) (Dictionary, error) {
 	var dictionary Dictionary
-	err := db.QueryRow(getDictionaryByID, id).Scan(&dictionary.ID, &dictionary.Name, &dictionary.LanguageID, &dictionary.ImageLink)
+	err := db.QueryRow(getDictionaryByID, sql.Named("id", id)).Scan(&dictionary.ID, &dictionary.Name, &dictionary.LanguageID, &dictionary.ImageLink)
 	return dictionary, err
 }
 
 func UpdateDictionary(db *sql.DB, dictionary *Dictionary) error {
-	_, err := db.Exec(updateDictionary, dictionary.Name, dictionary.LanguageID, dictionary.ImageLink, dictionary.ID)
+	_, err := db.Exec(updateDictionary, sql.Named("name", dictionary.Name), sql.Named("language_id", dictionary.LanguageID), sql.Named("imageLink", dictionary.ImageLink), sql.Named("id", dictionary.ID))
 	return err
 }

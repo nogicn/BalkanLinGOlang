@@ -43,33 +43,40 @@ const (
     `
 )
 
+type ActiveQuestion struct {
+	ID     int `json:"id"`
+	UserID int `json:"userId"`
+	WordID int `json:"wordId"`
+	Type   int `json:"type"`
+}
+
 func CreateActiveQuestionTable(db *sql.DB) error {
 	_, err := db.Exec(createActiveQuestionTable)
 	return err
 }
 
 func DeleteActiveQuestionByUserID(db *sql.DB, userID int) error {
-	_, err := db.Exec(deleteActiveQuestion, userID)
+	_, err := db.Exec(deleteActiveQuestion, sql.Named("userID", userID))
 	return err
 }
 
 func DeleteActiveQuestionByWordID(db *sql.DB, wordID int) error {
-	_, err := db.Exec(deleteActiveQuestionWordID, wordID)
+	_, err := db.Exec(deleteActiveQuestionWordID, sql.Named("wordId", wordID))
 	return err
 }
 
 func SetActiveQuestion(db *sql.DB, activeQuestion *ActiveQuestion) error {
-	_, err := db.Exec(setActiveQuestion, activeQuestion.UserID, activeQuestion.WordID, activeQuestion.Type)
+	_, err := db.Exec(setActiveQuestion, sql.Named("userID", activeQuestion.UserID), sql.Named("wordId", activeQuestion.WordID), sql.Named("type", activeQuestion.Type))
 	return err
 }
 
 func GetActiveQuestionByUserID(db *sql.DB, userID int) (ActiveQuestion, error) {
 	var activeQuestion ActiveQuestion
-	err := db.QueryRow(getActiveQuestion, userID).Scan(&activeQuestion.ID, &activeQuestion.UserID, &activeQuestion.WordID, &activeQuestion.Type)
+	err := db.QueryRow(getActiveQuestion, sql.Named("userID", userID)).Scan(&activeQuestion.ID, &activeQuestion.UserID, &activeQuestion.WordID, &activeQuestion.Type)
 	return activeQuestion, err
 }
 
 func IncreaseActiveQuestionTypeByUserID(db *sql.DB, userID int) error {
-	_, err := db.Exec(increaseActiveQuestionType, userID)
+	_, err := db.Exec(increaseActiveQuestionType, sql.Named("userID", userID))
 	return err
 }
