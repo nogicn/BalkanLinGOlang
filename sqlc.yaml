@@ -1,0 +1,17 @@
+version: "2"
+sql:
+- schema: "./models/schema.sql"
+  queries: "./models/userworddb/queries.sql"
+  engine: "sqlite"
+  gen:
+    go:
+      package: "userworddbc"
+      out: "./models/userworddbc"
+
+- schema: "./models/schema.sql"
+  queries: "./models/worddb/queries.sql"
+  engine: "sqlite"
+  gen:
+    go:
+      package: "worddbc"
+      out: "./models/worddbc"
