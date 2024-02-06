@@ -16,21 +16,21 @@ const (
     `
 
 	deleteActiveQuestion = `
-        DELETE FROM active_question WHERE user_id = @userId;
+        DELETE FROM active_question WHERE user_id = @userID;
     `
 
-	deleteActiveQuestionWordId = `
+	deleteActiveQuestionWordID = `
         DELETE FROM active_question WHERE word_id = @wordId;
     `
 
 	setActiveQuestion = `
     INSERT OR REPLACE INTO active_question (user_id, word_id, type) 
-    VALUES (@userId, @wordId, @type);
+    VALUES (@userID, @wordId, @type);
     
     `
 
 	getActiveQuestion = `
-        SELECT * FROM active_question WHERE user_id = @userId;
+        SELECT * FROM active_question WHERE user_id = @userID;
     `
 
 	increaseActiveQuestionType = `
@@ -39,7 +39,7 @@ const (
             WHEN type >= 1 AND type < 4 THEN type + 1
             ELSE 1 
             END
-        WHERE user_id = @userId;
+        WHERE user_id = @userID;
     `
 )
 
@@ -48,13 +48,13 @@ func CreateActiveQuestionTable(db *sql.DB) error {
 	return err
 }
 
-func DeleteActiveQuestionByUserID(db *sql.DB, userId int) error {
-	_, err := db.Exec(deleteActiveQuestion, userId)
+func DeleteActiveQuestionByUserID(db *sql.DB, userID int) error {
+	_, err := db.Exec(deleteActiveQuestion, userID)
 	return err
 }
 
-func DeleteActiveQuestionByWordID(db *sql.DB, wordId int) error {
-	_, err := db.Exec(deleteActiveQuestionWordId, wordId)
+func DeleteActiveQuestionByWordID(db *sql.DB, wordID int) error {
+	_, err := db.Exec(deleteActiveQuestionWordID, wordID)
 	return err
 }
 
@@ -63,13 +63,13 @@ func SetActiveQuestion(db *sql.DB, activeQuestion *ActiveQuestion) error {
 	return err
 }
 
-func GetActiveQuestionByUserID(db *sql.DB, userId int) (ActiveQuestion, error) {
+func GetActiveQuestionByUserID(db *sql.DB, userID int) (ActiveQuestion, error) {
 	var activeQuestion ActiveQuestion
-	err := db.QueryRow(getActiveQuestion, userId).Scan(&activeQuestion.ID, &activeQuestion.UserID, &activeQuestion.WordID, &activeQuestion.Type)
+	err := db.QueryRow(getActiveQuestion, userID).Scan(&activeQuestion.ID, &activeQuestion.UserID, &activeQuestion.WordID, &activeQuestion.Type)
 	return activeQuestion, err
 }
 
-func IncreaseActiveQuestionTypeByUserID(db *sql.DB, userId int) error {
-	_, err := db.Exec(increaseActiveQuestionType, userId)
+func IncreaseActiveQuestionTypeByUserID(db *sql.DB, userID int) error {
+	_, err := db.Exec(increaseActiveQuestionType, userID)
 	return err
 }

@@ -21,7 +21,7 @@ const (
         DELETE FROM dictionary_user WHERE user_id = @userId AND dictionary_id = @dictionaryId;
     `
 
-	getDictionaryById = `
+	getDictionaryByID = `
         SELECT * FROM dictionary_user WHERE id = @id;
     `
 
@@ -41,24 +41,24 @@ func CreateDictionaryUserTable(db *sql.DB) error {
 	return err
 }
 
-func AddDictionaryToUser(db *sql.DB, userId, dictionaryId int) error {
-	_, err := db.Exec(addDictionaryToUser, userId, dictionaryId)
+func AddDictionaryToUser(db *sql.DB, userID, dictionaryID int) error {
+	_, err := db.Exec(addDictionaryToUser, userID, dictionaryID)
 	return err
 }
 
-func DeleteDictionaryFromUser(db *sql.DB, userId, dictionaryId int) error {
-	_, err := db.Exec(deleteDictionaryFromUser, userId, dictionaryId)
+func DeleteDictionaryFromUser(db *sql.DB, userID, dictionaryID int) error {
+	_, err := db.Exec(deleteDictionaryFromUser, userID, dictionaryID)
 	return err
 }
 
-func GetDictionaryUserById(db *sql.DB, id int) (DictionaryUser, error) {
+func GetDictionaryUserByID(db *sql.DB, id int) (DictionaryUser, error) {
 	var dictionaryUser DictionaryUser
-	err := db.QueryRow(getDictionaryById, id).Scan(&dictionaryUser.ID, &dictionaryUser.UserID, &dictionaryUser.DictionaryID)
+	err := db.QueryRow(getDictionaryByID, id).Scan(&dictionaryUser.ID, &dictionaryUser.UserID, &dictionaryUser.DictionaryID)
 	return dictionaryUser, err
 }
 
-func GetUserDictionaries(db *sql.DB, userId, dictionaryId int) ([]DictionaryUser, error) {
-	rows, err := db.Query(getUserDictionaries, userId, dictionaryId)
+func GetUserDictionaries(db *sql.DB, userID, dictionaryID int) ([]DictionaryUser, error) {
+	rows, err := db.Query(getUserDictionaries, userID, dictionaryID)
 	if err != nil {
 		return nil, err
 	}

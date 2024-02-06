@@ -74,7 +74,7 @@ const (
         AND word_id = @wordId;
     `
 
-	getUserWordByUserId = `
+	getUserWordByUserID = `
         SELECT * FROM user_word WHERE user_id = @userId;
     `
 
@@ -89,7 +89,7 @@ const (
         AND word_id = @wordId;
     `
 
-	deleteUserWordbyId = `
+	deleteUserWordbyID = `
         DELETE FROM user_word WHERE word_id = @wordId;
     `
 )
@@ -215,7 +215,7 @@ func DeactivateWordForUser(dbase *sql.DB, userID, wordID int) error {
 }
 
 func GetUserWordsByUserID(dbase *sql.DB, userID int) ([]UserWord, error) {
-	rows, err := dbase.Query(getUserWordByUserId, userID)
+	rows, err := dbase.Query(getUserWordByUserID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -248,6 +248,6 @@ func UpdateLastAnswered(dbase *sql.DB, userID, wordID int, lastAnswered string) 
 }
 
 func DeleteUserWordByID(dbase *sql.DB, wordID int) error {
-	_, err := dbase.Exec(deleteUserWordbyId, wordID)
+	_, err := dbase.Exec(deleteUserWordbyID, wordID)
 	return err
 }

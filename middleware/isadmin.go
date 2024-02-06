@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-// check if user is authenticated
+// IsAdmin checks if user is authenticated
 func IsAdmin(store *session.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		db := db.DB
@@ -18,7 +18,7 @@ func IsAdmin(store *session.Store) fiber.Handler {
 			return c.Redirect("/login")
 		}
 		// get user from db
-		user, err := userdb.GetUserById(db, session.Get("user_id").(int))
+		user, err := userdb.GetUserByID(db, session.Get("user_id").(int))
 		if err != nil {
 			return c.Redirect("/login")
 		}

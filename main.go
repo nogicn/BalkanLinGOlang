@@ -17,7 +17,7 @@ import (
 //templ generate
 
 func main() {
-	var err error
+	var err error = nil
 
 	err = godotenv.Load()
 	if err != nil {

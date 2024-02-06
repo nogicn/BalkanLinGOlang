@@ -1,4 +1,4 @@
-package learning_controller
+package learningcontroller
 
 import (
 	"BalkanLinGO/db"
@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -116,7 +115,6 @@ func LearnSessionForeignNative(c *fiber.Ctx) error {
 		finalWords[i].ForeignDescription, finalWords[i].NativeDescription = finalWords[i].NativeDescription, finalWords[i].ForeignDescription
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
 	activeword.ForeignWord, activeword.NativeWord = activeword.NativeWord, activeword.ForeignWord
 	activeword.ForeignDescription, activeword.NativeDescription = activeword.NativeDescription, activeword.ForeignDescription
@@ -156,7 +154,6 @@ func LearnSessionNativeForeign(c *fiber.Ctx) error {
 	finalWords = append(finalWords, activeword)
 	finalWords = fillWordList(words, finalWords, 3)
 
-	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
 	return c.Render("learn/selectWord", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 3})
 
@@ -328,7 +325,6 @@ func CheckListeningAnswer(c *fiber.Ctx) error {
 		}
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	random := rand.Intn(100)
 	var correct bool
 	if random > 50 {

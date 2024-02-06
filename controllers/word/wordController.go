@@ -1,4 +1,4 @@
-package word_controller
+package wordcontroller
 
 import (
 	"BalkanLinGO/db"
@@ -28,7 +28,7 @@ func EditWord(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		dictionary, err := dictionarydb.GetDictionaryById(db.DB, word.DictionaryID)
+		dictionary, err := dictionarydb.GetDictionaryByID(db.DB, word.DictionaryID)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
@@ -88,7 +88,7 @@ func AddWord(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		dictionary, err := dictionarydb.GetDictionaryById(db.DB, dictIDInt)
+		dictionary, err := dictionarydb.GetDictionaryByID(db.DB, dictIDInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
@@ -149,7 +149,7 @@ func CreatePronunciation(c *fiber.Ctx) error {
 		Pronunciation:      c.FormValue("pronunciation"),
 	}
 
-	dictionary, err := dictionarydb.GetDictionaryById(db.DB, dictionaryIDInt)
+	dictionary, err := dictionarydb.GetDictionaryByID(db.DB, dictionaryIDInt)
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
 	}

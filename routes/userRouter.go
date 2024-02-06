@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-// create fiber route for users
+// UsersRouter crates routes for user
 func UsersRouter(app *fiber.App, session *session.Store) {
 	route := app.Group("/user")
 

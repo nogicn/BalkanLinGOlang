@@ -21,7 +21,7 @@ const (
         INSERT INTO word (foreignWord, foreignDescription, nativeWord, nativeDescription, pronunciation, dictionary_id) VALUES (@foreignWord, @foreignDescription, @nativeWord, @nativeDescription, @pronunciation, @dictionaryId);
     `
 
-	deleteWordById = `
+	deleteWordByID = `
         DELETE FROM word WHERE id = @wordId;
     `
 
@@ -29,11 +29,11 @@ const (
         DELETE FROM word WHERE foreignWord = @foreignWord AND foreignDescription = @foreignDescription AND nativeWord = @nativeWord AND nativeDescription = @nativeDescription;
     `
 
-	getWordByDictionaryId = `
+	getWordByDictionaryID = `
         SELECT * FROM word WHERE dictionary_id = @dictionaryId;
     `
 
-	deleteWordByDictionaryId = `
+	deleteWordByDictionaryID = `
         DELETE FROM word WHERE dictionary_id = @dictionaryId;
     `
 
@@ -41,7 +41,7 @@ const (
         SELECT * FROM word;
     `
 
-	getWordById = `
+	getWordByID = `
         SELECT * FROM word WHERE id = @wordId;
     `
 
@@ -49,7 +49,7 @@ const (
         UPDATE word SET foreignWord = @foreignWord, foreignDescription = @foreignDescription, nativeWord = @nativeWord, nativeDescription = @nativeDescription, pronunciation = @pronunciation WHERE id = @wordId;
     `
 
-	searchWordByDictionaryId = `
+	searchWordByDictionaryID = `
         SELECT * FROM word WHERE dictionary_id = @dictionaryId AND (foreignWord LIKE '%' || @word || '%' OR nativeWord LIKE '%' || @word || '%');
     `
 
@@ -79,7 +79,7 @@ func CreateWord(db *sql.DB, word *Word) error {
 }
 
 func DeleteWordByID(db *sql.DB, wordID int) error {
-	_, err := db.Exec(deleteWordById, wordID)
+	_, err := db.Exec(deleteWordByID, wordID)
 	return err
 }
 
@@ -89,7 +89,7 @@ func DeleteWordByMeaning(db *sql.DB, foreignWord, foreignDescription, nativeWord
 }
 
 func GetWordsByDictionaryID(db *sql.DB, dictionaryID int) ([]Word, error) {
-	rows, err := db.Query(getWordByDictionaryId, dictionaryID)
+	rows, err := db.Query(getWordByDictionaryID, dictionaryID)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func GetWordsByDictionaryID(db *sql.DB, dictionaryID int) ([]Word, error) {
 }
 
 func DeleteWordsByDictionaryID(db *sql.DB, dictionaryID int) error {
-	_, err := db.Exec(deleteWordByDictionaryId, dictionaryID)
+	_, err := db.Exec(deleteWordByDictionaryID, dictionaryID)
 	return err
 }
 
@@ -133,7 +133,7 @@ func GetAllWords(db *sql.DB) ([]Word, error) {
 
 func GetWordByID(db *sql.DB, wordID int) (Word, error) {
 	var word Word
-	err := db.QueryRow(getWordById, wordID).Scan(&word.ID, &word.ForeignWord, &word.ForeignDescription, &word.NativeWord, &word.NativeDescription, &word.Pronunciation, &word.DictionaryID)
+	err := db.QueryRow(getWordByID, wordID).Scan(&word.ID, &word.ForeignWord, &word.ForeignDescription, &word.NativeWord, &word.NativeDescription, &word.Pronunciation, &word.DictionaryID)
 	return word, err
 }
 
@@ -143,7 +143,7 @@ func UpdateWord(db *sql.DB, word *Word) error {
 }
 
 func SearchWordByDictionaryID(db *sql.DB, dictionaryID int, searchString string) ([]Word, error) {
-	rows, err := db.Query(searchWordByDictionaryId, dictionaryID, searchString)
+	rows, err := db.Query(searchWordByDictionaryID, dictionaryID, searchString)
 	if err != nil {
 		return nil, err
 	}

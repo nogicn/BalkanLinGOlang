@@ -1,4 +1,4 @@
-package locale_controller
+package localecontroller
 
 import (
 	"BalkanLinGO/db"
@@ -53,7 +53,7 @@ func DeleteLocale(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 
 		}
-		err = languagedb.DeleteLanguageById(db.DB, idInt)
+		err = languagedb.DeleteLanguageByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri brisanju jezika!", "link": "/dashboard"})
 
@@ -99,7 +99,7 @@ func EditLocale(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		language, err := languagedb.GetLanguageById(db.DB, idInt)
+		language, err := languagedb.GetLanguageByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}

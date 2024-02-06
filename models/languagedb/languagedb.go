@@ -26,13 +26,13 @@ const (
         FROM language;
     `
 
-	getLanguageById = `
+	getLanguageByID = `
         SELECT *
         FROM language
         WHERE id = @id;
     `
 
-	deleteLanguageById = `
+	deleteLanguageByID = `
         DELETE FROM language
         WHERE id = @id;
     `
@@ -101,14 +101,14 @@ func GetShorthands(db *sql.DB) ([]string, error) {
 	return shorthands, nil
 }
 
-func GetLanguageById(db *sql.DB, id int) (Language, error) {
+func GetLanguageByID(db *sql.DB, id int) (Language, error) {
 	var language Language
-	err := db.QueryRow(getLanguageById, id).Scan(&language.ID, &language.Name, &language.Shorthand, &language.FlagIcon)
+	err := db.QueryRow(getLanguageByID, id).Scan(&language.ID, &language.Name, &language.Shorthand, &language.FlagIcon)
 	return language, err
 }
 
-func DeleteLanguageById(db *sql.DB, id int) error {
-	_, err := db.Exec(deleteLanguageById, id)
+func DeleteLanguageByID(db *sql.DB, id int) error {
+	_, err := db.Exec(deleteLanguageByID, id)
 	return err
 }
 

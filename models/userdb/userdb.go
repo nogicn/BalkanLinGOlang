@@ -35,7 +35,7 @@ const (
 		SELECT * FROM user WHERE token = @token;
 	`
 
-	getUserById = `
+	getUserByID = `
 		SELECT * FROM user WHERE id = @id;
 	`
 
@@ -47,7 +47,7 @@ const (
 		UPDATE user SET token = @token WHERE email = @email RETURNING *;
 	`
 
-	updateTokenById = `
+	updateTokenByID = `
 		UPDATE user SET token = @token WHERE id = @id RETURNING *;
 	`
 
@@ -58,13 +58,13 @@ const (
 	updateUserByToken = `
 		UPDATE user SET name = @name, surname = @surname WHERE token = @token RETURNING *;
 	`
-	deleteUserById = `
+	deleteUserByID = `
 		DELETE FROM user WHERE id = ?;
 	`
 	setAdminByEmail = `
     	UPDATE user SET is_admin = not is_admin WHERE email = @email RETURNING *;
 	`
-	setAdminById = `
+	setAdminByID = `
 		UPDATE user SET is_admin = not is_admin WHERE id = @id RETURNING *;
 	`
 	getAllUsersLikeEmail = `
@@ -103,9 +103,9 @@ func SetAdminByEmail(dbase *sql.DB, email string) (User, error) {
 	return user, err
 }
 
-func SetAdminById(dbase *sql.DB, id int) (User, error) {
+func SetAdminByID(dbase *sql.DB, id int) (User, error) {
 	var user User
-	err := dbase.QueryRow(setAdminById, id).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
+	err := dbase.QueryRow(setAdminByID, id).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
 
@@ -138,9 +138,9 @@ func GetUserByToken(dbase *sql.DB, token string) (User, error) {
 	return user, err
 }
 
-func GetUserById(dbase *sql.DB, id int) (User, error) {
+func GetUserByID(dbase *sql.DB, id int) (User, error) {
 	var user User
-	err := dbase.QueryRow(getUserById, id).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
+	err := dbase.QueryRow(getUserByID, id).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
 
@@ -152,14 +152,14 @@ func GetUserByEmail(dbase *sql.DB, email string) (User, error) {
 }
 
 func UpdateTokenByEmail(dbase *sql.DB, email string, token string) (User, error) {
-	var user User = User{}
+	var user User
 	err := dbase.QueryRow(updateTokenByEmail, token, email).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
 
-func UpdateTokenById(dbase *sql.DB, id int, token string) (User, error) {
+func UpdateTokenByID(dbase *sql.DB, id int, token string) (User, error) {
 	var user User
-	err := dbase.QueryRow(updateTokenById, id, token).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
+	err := dbase.QueryRow(updateTokenByID, id, token).Scan(&user.ID, &user.Name, &user.Surname, &user.Email, &user.Password, &user.IsAdmin, &user.Token)
 	return user, err
 }
 
@@ -175,8 +175,8 @@ func UpdateUserByToken(dbase *sql.DB, name, surname, token string) (User, error)
 	return user, err
 }
 
-func DeleteUserById(dbase *sql.DB, id int) error {
-	_, err := dbase.Exec(deleteUserById, id)
+func DeleteUserByID(dbase *sql.DB, id int) error {
+	_, err := dbase.Exec(deleteUserByID, id)
 	return err
 }
 

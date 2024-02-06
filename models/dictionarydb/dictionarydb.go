@@ -23,7 +23,7 @@ const (
         LEFT JOIN language ON dictionary.language_id = language.id
         LEFT JOIN dictionary_user ON dictionary.id = dictionary_user.dictionary_id
         WHERE dictionary_user.dictionary_id = dictionary.id
-        AND dictionary_user.user_id = @userId;
+        AND dictionary_user.user_id = @userID;
     `
 
 	getAllDictionaries = `
@@ -48,11 +48,11 @@ const (
         WHERE dictionary.id NOT IN (
             SELECT dictionary_id
             FROM dictionary_user
-            WHERE user_id = @userId
+            WHERE user_id = @userID
         );
     `
 
-	getDictionaryById = `
+	getDictionaryByID = `
         SELECT *
         FROM dictionary
         WHERE id = @id;
@@ -83,8 +83,8 @@ func CreateNewDictionary(db *sql.DB, dictionary *Dictionary) error {
 	return err
 }
 
-func GetDictionariesForUser(db *sql.DB, userId int) ([]Dictionary, error) {
-	rows, err := db.Query(getDictionariesForUser, userId)
+func GetDictionariesForUser(db *sql.DB, userID int) ([]Dictionary, error) {
+	rows, err := db.Query(getDictionariesForUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -145,8 +145,8 @@ func DeleteDictionary(db *sql.DB, id int) error {
 	return err
 }
 
-func GetDictionariesNotAssignedToUser(db *sql.DB, userId int) ([]Dictionary, error) {
-	rows, err := db.Query(getDictionariesNotAssignedToUser, userId)
+func GetDictionariesNotAssignedToUser(db *sql.DB, userID int) ([]Dictionary, error) {
+	rows, err := db.Query(getDictionariesNotAssignedToUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -164,9 +164,9 @@ func GetDictionariesNotAssignedToUser(db *sql.DB, userId int) ([]Dictionary, err
 	return dictionaries, nil
 }
 
-func GetDictionaryById(db *sql.DB, id int) (Dictionary, error) {
+func GetDictionaryByID(db *sql.DB, id int) (Dictionary, error) {
 	var dictionary Dictionary
-	err := db.QueryRow(getDictionaryById, id).Scan(&dictionary.ID, &dictionary.Name, &dictionary.LanguageID, &dictionary.ImageLink)
+	err := db.QueryRow(getDictionaryByID, id).Scan(&dictionary.ID, &dictionary.Name, &dictionary.LanguageID, &dictionary.ImageLink)
 	return dictionary, err
 }
 

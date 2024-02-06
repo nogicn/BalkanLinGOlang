@@ -26,7 +26,7 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login", "auth": false})
 	}
 	userid := session.Get("user_id").(int)
-	user, err := userdb.GetUserById(db, userid)
+	user, err := userdb.GetUserByID(db, userid)
 	//user, _ := userdb.GetUserById(db, 1)
 
 	c.Locals("user_id", user.ID)

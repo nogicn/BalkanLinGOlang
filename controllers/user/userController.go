@@ -1,4 +1,4 @@
-package user_controller
+package usercontroller
 
 import (
 	"BalkanLinGO/db"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// get all users from database
+// GetUsers returns all users
 func GetUsers(c *fiber.Ctx) error {
 	users, err := userdb.GetAllUsers(db.DB)
 	if err != nil {
@@ -33,7 +33,7 @@ func DeleteUser(c *fiber.Ctx) error {
 	}
 
 	// Call the DeleteUser function from the user model
-	err = userdb.DeleteUserById(db.DB, idInt)
+	err = userdb.DeleteUserByID(db.DB, idInt)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -152,7 +152,7 @@ func SetAdmin(c *fiber.Ctx) error {
 	}
 
 	// get user from database
-	curUser, err := userdb.GetUserById(db.DB, c.Locals("user_id").(int))
+	curUser, err := userdb.GetUserByID(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -161,7 +161,7 @@ func SetAdmin(c *fiber.Ctx) error {
 	}
 
 	// Call the DeleteUser function from the user model
-	user, err := userdb.SetAdminById(db.DB, idInt)
+	user, err := userdb.SetAdminByID(db.DB, idInt)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -192,7 +192,7 @@ func EditUser(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Error")
 	}
 
-	user, err := userdb.GetUserById(db.DB, id)
+	user, err := userdb.GetUserByID(db.DB, id)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}

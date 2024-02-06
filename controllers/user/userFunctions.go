@@ -1,18 +1,16 @@
-package user_controller
+package usercontroller
 
 import (
 	"BalkanLinGO/db"
 	"BalkanLinGO/models/userdb"
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 func randStringBytes(n int) string {
-	rand.Seed(time.Now().UnixNano())
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 	b := make([]byte, n)
 	for i := range b {

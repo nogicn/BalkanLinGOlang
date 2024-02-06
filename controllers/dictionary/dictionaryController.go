@@ -1,4 +1,4 @@
-package dictionary_controller
+package dictionarycontroller
 
 import (
 	"BalkanLinGO/db"
@@ -92,7 +92,7 @@ func AdminEditDict(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}
 
-		dict, err := dictionarydb.GetDictionaryById(db.DB, idInt)
+		dict, err := dictionarydb.GetDictionaryByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}
@@ -118,13 +118,13 @@ func AdminSaveDict(c *fiber.Ctx) error {
 		imageLink := c.FormValue("imageLink")
 		// convert to int
 
-		langId, err := strconv.Atoi(c.FormValue("langId"))
+		langID, err := strconv.Atoi(c.FormValue("langId"))
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}
 		id := c.FormValue("id")
 		if id == "" {
-			err = dictionarydb.CreateNewDictionary(db.DB, &dictionarydb.Dictionary{Name: description, LanguageID: langId, ImageLink: imageLink})
+			err = dictionarydb.CreateNewDictionary(db.DB, &dictionarydb.Dictionary{Name: description, LanguageID: langID, ImageLink: imageLink})
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju rečnika!", "link": "/dashboard"})
 			}
@@ -133,7 +133,7 @@ func AdminSaveDict(c *fiber.Ctx) error {
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 			}
-			err = dictionarydb.UpdateDictionary(db.DB, &dictionarydb.Dictionary{ID: idInt, Name: description, LanguageID: langId, ImageLink: imageLink})
+			err = dictionarydb.UpdateDictionary(db.DB, &dictionarydb.Dictionary{ID: idInt, Name: description, LanguageID: langID, ImageLink: imageLink})
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju rečnika!", "link": "/dashboard"})
 			}
@@ -194,7 +194,7 @@ func SearchDictionary(c *fiber.Ctx) error {
 	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
-		dictionaries, err := dictionarydb.GetDictionaryById(db.DB, idInt)
+		dictionaries, err := dictionarydb.GetDictionaryByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri dohvatanju rečnika!", "link": "/dashboard"})
 		}

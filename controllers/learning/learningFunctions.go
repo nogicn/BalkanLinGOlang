@@ -1,4 +1,4 @@
-package learning_controller
+package learningcontroller
 
 import (
 	"BalkanLinGO/db"
@@ -78,7 +78,6 @@ func setActiveQuestion(activequestion *activequestiondb.ActiveQuestion, c *fiber
 		return fiber.NewError(404, "Nema više riječi za učenje!")
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	random := rand.Intn(len(userWords))
 	tmpActive.WordID = userWords[random].WordID
 	tmpActive.UserID = c.Locals("user_id").(int)
