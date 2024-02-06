@@ -8,10 +8,14 @@ require (
 )
 
 require (
+	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230512164433-5d1fd1a340c9 // indirect
 	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/gofiber/template v1.8.2 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 // indirect
+	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
+	nhooyr.io/websocket v1.8.7 // indirect
 )
 
 require (
@@ -26,6 +30,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/tursodatabase/libsql-client-go v0.0.0-20240130154219-693ad24d6659
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

@@ -20,6 +20,8 @@ import (
 	"BalkanLinGO/models/userdb"
 	"BalkanLinGO/models/userworddb"
 	"BalkanLinGO/models/worddb"
+
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 var DB *sql.DB
@@ -56,6 +58,8 @@ func Init() {
 	//os.Setenv("SQLITE_LOG", "1")
 	dsn := "file:./db/database.sqlite3?cache=shared" //&_journal_mode=WAL
 	DB, err = sql.Open("sqlite3", dsn)
+	/*libdsn := "http://localhost:8080"
+	DB, err = sql.Open("libsql", libdsn)*/
 	/*loggerAdapter := zerologadapter.New(zerolog.New(os.Stdout))
 	DB = sqldblogger.OpenDriver(dsn, DB.Driver(), loggerAdapter, sqldblogger.WithSQLQueryAsMessage(true), sqldblogger.WithPreparerLevel(sqldblogger.LevelDebug), // default: LevelInfo
 		sqldblogger.WithQueryerLevel(sqldblogger.LevelDebug), sqldblogger.WithSQLArgsFieldname("sql_args"))
