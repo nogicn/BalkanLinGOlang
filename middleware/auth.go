@@ -27,7 +27,7 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	}
 	userid := session.Get("user_id").(int)
 	user, err := userdb.GetUserByID(db, userid)
-	//user, _ := userdb.GetUserById(db, 1)
+	//user, _ := userdb.GetUserByID(db, 1)
 
 	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
