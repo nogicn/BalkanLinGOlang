@@ -1,3 +1,11 @@
-Balkan Lingo ali u golangu :DD
+## Balkan Lingo ali u GoLangu :DD
 
-pokreni aplikaciju sa go run main.go
+Pokreni aplikaciju sa `go run main.go`
+
+### Admin Account:
+- **Email:admin@balkanlingo.online**
+- **Password:123**
+
+### User Account:
+- **Email:user@balkanlingo.online**
+- **Password:123**
