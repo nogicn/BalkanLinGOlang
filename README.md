@@ -1,4 +1,4 @@
-## Balkan Lingo ali u GoLangu :DD
+## BalkanLingo ali u Golangu :DD
 
 Pokreni aplikaciju sa `go run main.go`
 
