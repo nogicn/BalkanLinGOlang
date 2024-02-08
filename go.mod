@@ -26,6 +26,9 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rs/zerolog v1.32.0
+	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551
+	github.com/simukti/sqldb-logger/logadapter/zerologadapter v0.0.0-20230108155151-646c1a075551
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
