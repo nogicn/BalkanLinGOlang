@@ -62,17 +62,17 @@ func LearnSession(c *fiber.Ctx) error {
 
 	switch activequestion.Type {
 	case 1:
-
 		LearnSessionForeignNative(c)
+
 	case 2:
-
 		LearnSessionNativeForeign(c)
+
 	case 3:
-
 		LearnSessionWriting(c)
-	case 4:
 
+	case 4:
 		LearnSessionPronunciation(c)
+
 	default:
 		LearnSessionForeignNative(c)
 
@@ -170,7 +170,6 @@ func LearnSessionWriting(c *fiber.Ctx) error {
 	}
 	id := c.Params("id")
 	dictidInt, err := strconv.Atoi(id)
-	fmt.Println("ASDASDASDAS", dictidInt)
 	if err != nil {
 		return c.Status(500).SendString("Invalid ID")
 	}

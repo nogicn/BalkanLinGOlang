@@ -17,12 +17,11 @@ func UsersRouter(app *fiber.App, session *session.Store) {
 	}, usercontroller.UpdateUser)
 	route.Get("/all", usercontroller.GetUsers)
 	//route.Delete("/:id", usercontroller.DeleteUser)
-	// TODO createpass i reset
 	route.Post("/register", usercontroller.CreateUser)
 	route.Post("/login", func(c *fiber.Ctx) error { return usercontroller.LoginUser(c, session) })
 	route.Get("/logout", func(c *fiber.Ctx) error { return middleware.CheckAuth(c, session) }, func(c *fiber.Ctx) error { return usercontroller.LogoutUser(c, session) })
 	route.Get("/getUsers", func(c *fiber.Ctx) error { return middleware.CheckAuth(c, session) }, usercontroller.GetUsers)
-	route.Post("/createPass", func(c *fiber.Ctx) error { usercontroller.CreatePass(c, session); return nil })
+	route.Post("/createPass", func(c *fiber.Ctx) error { return usercontroller.CreatePass(c, session) })
 	route.Post("/getUsers", usercontroller.ListUsers)
 	route.Get("/edit", func(c *fiber.Ctx) error {
 		return middleware.CheckAuth(c, session)

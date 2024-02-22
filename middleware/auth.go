@@ -26,8 +26,8 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 		return c.Status(401).Render("forOfor", fiber.Map{"status": "401", "errorText": "Niste prijavljeni!", "link": "/login", "auth": false})
 	}
 	userid := session.Get("user_id").(int)
-	user, err := userdb.GetUserByID(db, userid)
-	//user, _ := userdb.GetUserByID(db, 1)
+	user, _ := userdb.GetUserByID(db, userid)
+	//user, _ := userdb.GetUserByID(db, 2)
 
 	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
@@ -36,14 +36,10 @@ func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 	c.Locals("is_admin", user.IsAdmin)
 	c.Locals("token", user.Token)
 
-	/*session.Set("user_id", user.ID)
-	session.Set("name", user.Name)
-	session.Set("surname", user.Surname)
-	session.Set("email", user.Email)
+	session.Set("user_id", user.ID)
 	session.Set("is_admin", user.IsAdmin)
-	session.Set("token", user.Token)
 	err = session.Save()
-	return c.Next()*/
+	//return c.Next()*/
 
 	if err != nil {
 		fmt.Println(err)

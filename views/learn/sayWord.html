@@ -1,4 +1,3 @@
-<!-- FILEPATH: /home/uwupc/Documents/go/BalkanLinGO/views/sayWord.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,13 +136,13 @@
     <script>
         document.body.addEventListener('htmx:beforeRequest', function(event) {
             // Add your condition to decide when to prevent the request
-            if (shouldPreventRequest(event.detail)) {
+            /*if (shouldPreventRequest(event.detail)) {
                 event.preventDefault();
                 console.log('HTMX Request Prevented');
                 // append div to answer with error message
                 var answerDiv = document.getElementById('answer');
                 answerDiv.innerHTML = '<div class="answer"> <p class="answer" style="color: red">PRVO SNIMITE RIJEČ</p> </div>';
-            }
+            }*/
         });
 
         function shouldPreventRequest(detail) {
