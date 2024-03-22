@@ -1,8 +1,8 @@
 ## BalkanLingo ali u Golangu :DD
 
-Pokreni aplikaciju sa `go run main.go`
+Prvo preimenuj .example.env u .env
+Zatim pokreni aplikaciju sa `go run main.go`
 
-## Potrebno je preimenovati .example.env u .env
 
 ### Admin Account:
 - **Email:admin@balkanlingo.online**
