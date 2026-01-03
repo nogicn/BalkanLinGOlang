@@ -1,0 +1,21 @@
+<div class="navbar" style="background-image: url('/images/freckleOverlay.png');" hx-push-url="true">
+    <div class="navbar-left">
+        {% if auth == false %}
+        <a href="/login"><img src="/images/logoMCropped.png" alt=""></a>
+        {% else %}
+        <div hx-get="/dictionary" hx-target=".main" hx-on="press" hx-replace-url="/"><img src="/images/logoMCropped.png"
+                alt=""></div>
+        {% endif %}
+    </div>
+    {% if auth != false %}
+    <div class="navbar-right">
+        {% if IsAdmin %}
+        <div hx-target=".main" hx-get="/locale/adminLocales"><img src="/images/black-globe.png" alt=""></div>
+        <div hx-target=".main" hx-get="/user/getUsers"><img src="/images/admin.png" alt=""></div>
+        {% endif %}
+        <div hx-target=".main" hx-get="/user/edit"><img src="/images/orange-user.png" alt=""></div>
+        <a href="/user/logout"><img src="/images/orange-logout.png" alt=""></a>
+    </div>
+    {% endif %}
+</div>
+<hr>

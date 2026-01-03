@@ -1,0 +1,45 @@
+<div class="main-search">
+    <form class="flex-container profile-container" hx-post="/dictionary/adminSaveDict" hx-target=".main"
+        hx-push-url="false">
+        <h2 class="language-title">{% if dictionary %}UREĐIVANJE RJEČNIKA{% else %}DODAVANJE NOVOG RJEČNIKA{% endif %}
+        </h2>
+        <br>
+        <div class="word-edit-top">
+            <input type="hidden" name="id" value="{{ dictionary.ID }}">
+
+            <div class="word-edit-container">
+                <label for="mainPage" class="word-edit-label ">NASLOVNICA</label>
+                <input class="word-edit" type="text" id="mainPage" name="imageLink" placeholder='"https://www..."'
+                 {% if dictionary %} value="{{ dictionary.ImageLink }}" {% endif %}>
+            </div>
+
+            <div class="word-edit-container">
+                <label for="description" class="word-edit-label">JEZIK</label>
+                <select name="langId" id="" class="select">
+                    {% for language in languages %}
+                    <option value="{{ language.ID }}" {% if language.ID==dictionary.LanguageID %} selected {% endif %}>
+                        {{ language.Name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="word-edit-container">
+                <label for="description" class="word-edit-label">OPIS</label>
+                <input class="word-edit" type="text" id="description" name="description"
+                    placeholder='"ENGLESKI RJEČNIK"' {% if dictionary %} value="{{ dictionary.Name }}" {% endif %}>
+            </div>
+
+            <div class="save-changes-container">
+                <button class="save-changes" type="submit">SPREMI PROMJENE</button>
+                <img src="/images/blue-warning.png" alt="">
+            </div>
+        </div>
+        {% if dictionary %}
+        <div class="save-changes-container">
+            <div class="delete-dictionary" hx-get="/dictionary/removeDictionary/{{ dictionary.ID }}">OBRIŠI RJEČNIK
+            </div>
+        </div>
+        {% endif %}
+    </form>
+</div>
+</div>

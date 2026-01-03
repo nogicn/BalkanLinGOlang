@@ -1,0 +1,30 @@
+<div class="main-dictionary-show" hx-push-url="true">
+    <!-- Main content -->
+    {% for dictionary in dictionaries %}
+    <div class="dictionary"
+        style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('{{ dictionary.ImageLink }}');">
+        <div class="dictionary-name dict-box-1">{{ dictionary.FlagIcon }} {{ dictionary.Name }}</div>
+        {% if IsAdmin %}
+        <div class="dict-button dict-box-2" hx-target=".main" hx-get="/learnSession/{{ dictionary.ID }}"><b>TEST</b>
+        </div>
+        <div class="dict-button dict-box-3" hx-target=".main" hx-get="/dictionary/dictSearch/{{ dictionary.ID }}">
+            <b>UREDI</b></div>
+        <div class="dict-button dict-box-4" hx-target=".main" hx-get="/dictionary/adminEditDict/{{ dictionary.ID }}">
+            <b>POSTAVKE</b></div>
+        <!-- <button style="padding: 4px 10px; width: 100%;"><a href="/dictionary/removeDictionary/{{ dictionary.ID }}"><b>OBRIŠI</b></a></button>-->
+        {% else %}
+        <div class="dict-button dict-box-2" hx-target=".main" hx-get="/learnSession/{{ dictionary.ID }}"><b>ODABERI</b>
+        </div>
+        <div class="dict-button dict-box-3" hx-target=".main" hx-get="/dictionary/removeDictionary/{{ dictionary.ID }}">
+            <b>OBRIŠI</b></div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="add-dictionary" hx-get="/dictionary/addDictionary" hx-target=".main" style="cursor: pointer;">
+        <div>
+            <div class="add-button"><img src="/images/orange-add.png" alt=""></div>
+            <p>DODAJ NOVI<br>RJEČNIK</p>
+        </div>
+    </div>
+</div>

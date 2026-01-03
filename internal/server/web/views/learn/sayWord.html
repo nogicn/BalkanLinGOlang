@@ -1,0 +1,39 @@
+
+<div class="main-content">
+    <div class="button-container">
+        <a href="/dashboard" style="opacity:0">
+            <img src="/images/orange-home.png" alt="">
+            <p>završi sesiju učenja</p>
+        </a>
+    </div>
+    <div class="say-area">
+        <div class="say-head">
+            <img src="/images/black-talk.png" alt="">
+            <p>PROČITAJ I IZGOVORI RIJEČ</p>
+        </div>
+        <form id="formData">
+            <p class="big-bold">{{ word.Foreignword }}</p>
+            <p class="phrase">{{ word.ForeignDescription }}</p>
+            <img class="say" src="/images/orange-mic.png" alt="" id="recordButton">
+            <input hidden type="file" name="pronunciation" id="audioInput" accept="audio/*">
+            <audio id="audioPlayer" controls></audio>
+            <div hx-post="/dictionary/checkListening/{{ word.ID }}" hx-target="#answer" hx-include="#formData"
+                hx-trigger="click" class="check">PROVJERA</div>
+            <div id="answer"></div>
+        </form>
+        <div class="invisible-buttons">
+            <!-- Ovo ima istu funkcionalnost kao i button-container, samo se ovo prikazuje kad je mal ekran -->
+            {% include 'partials/navigation.html' %}
+        </div>
+    </div>
+    <div class="button-container">
+        <div hx-target=".main" hx-get="/learnSession/{{ dictionaryId }}" hx-swap="innerHTML" hx-push-url="true"
+            style="opacity:0">
+                <img src="/images/orange-next.png" alt="">
+            <p>sljedeće pitanje</p>
+        </div>
+    </div>
+</div>
+
+{% include 'learn/jspartials/sayWordScript.html' %}
+{% include 'learn/jspartials/preventHtmxScript.html' %}

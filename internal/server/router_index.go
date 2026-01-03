@@ -1,0 +1,58 @@
+package server
+
+import (
+	//"BalkanLinGO/controllers"
+
+	learningcontroller "BalkanLinGO/internal/server/controllers/learning"
+	"BalkanLinGO/internal/server/middleware"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+// create fiber route for users
+
+func (s *FiberServer) RegisterIndexRouter() {
+	learningcontroller := learningcontroller.New(s.db)
+
+	route := s.Group("/")
+
+	route.Get("/register", func(c *fiber.Ctx) error {
+		return c.Render("auth/register", fiber.Map{"title": "Register"})
+	})
+
+	route.Get("/login",
+		func(c *fiber.Ctx) error {
+			return c.Render("auth/login", fiber.Map{"title": "Login"})
+		})
+
+	route.Get("/reset", func(c *fiber.Ctx) error {
+		return c.Render("auth/resetPass", fiber.Map{"title": "Reset"})
+	})
+
+	route.Get("/dict", func(c *fiber.Ctx) error {
+		return c.Render("dictSearch", fiber.Map{"title": "Dictionary"})
+	})
+
+	route.Get("/error", func(c *fiber.Ctx) error {
+		return c.Render("forOfor", fiber.Map{"status": "404", "errorText": c.Locals("errorText"), "link": "/", "auth": c.Locals("user_id") != nil})
+	})
+
+	route.Get("/",
+		func(c *fiber.Ctx) error {
+			return middleware.CheckAuth(c, s.session, s.db)
+		},
+		func(c *fiber.Ctx) error {
+			return c.Render("dashboard", fiber.Map{"title": "Dashboard", "hx_link": "dictionary", "IsAdmin": c.Locals("is_admin")})
+		})
+
+	route.Get("/learnSession/:id",
+		func(c *fiber.Ctx) error {
+			return middleware.CheckAuth(c, s.session, s.db)
+		},
+		func(c *fiber.Ctx) error {
+			return middleware.HtmxMiddleware(c)
+		},
+		func(c *fiber.Ctx) error {
+			return learningcontroller.LearnSession(c)
+		})
+}

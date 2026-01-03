@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <title>Zaboravljena lozinka</title>
+
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+
+<body>
+  <div class="container flex">
+    <div class="login-page flex">
+      <div class="text">
+        <div class="project-name">
+          <div class="logo">
+            <img src="/images/logo.png" alt="" />
+          </div>
+          <h1>BALKANLIN<span style="color: #ff9f1c">GO!</span></h1>
+        </div>
+        <br />
+        <p>Upiši svoj <b>email</b></p>
+        <p>za dobivanje lozinke!</p>
+        <br /><br /><br />
+        <div class="image-bottom">
+          <img src="/images/balkanlingici.png" alt="" style="max-width: 60%" />
+        </div>
+      </div>
+      <form action="/user/reset" method="post">
+        <label for="email">EMAIL</label>
+        <input id="name" name="email" type="email" placeholder="unesi svoj email..." required />
+        <br />
+        <div class="link">
+          <button type="submit" class="login">SPREMI</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

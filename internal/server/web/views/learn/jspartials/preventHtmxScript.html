@@ -1,0 +1,37 @@
+<script>
+    
+    var mainContent = document.querySelector('.main-content');
+    mainContent.addEventListener('htmx:afterSwap', function (event) {
+        // Select all 'div' elements
+        var divs = mainContent.querySelectorAll('div');
+
+        // Loop through each 'div' and remove the 'hx-post' attribute
+        divs.forEach(function (div) {
+            if (div.hasAttribute('hx-post')) {
+                div.removeAttribute('hx-post');
+                div.removeAttribute('hx-target');
+                div.removeAttribute('hx-trigger');
+                // add atrribute to div
+                div.setAttribute('hx-disable', '');
+            }
+        });
+
+        // Select all 'a' elements 
+        var as = mainContent.querySelectorAll('a');
+
+        // Loop through each 'a' and set their opacity to 1
+        as.forEach(function (a) {
+            a.style.opacity = 1;
+        });
+
+        // select next question div
+        var nextQuestionDiv = mainContent.querySelector('.next-question a');
+        // select return home div
+        var returnHomeDiv = mainContent.querySelector('.return-home a');
+        // select invisible buttons div
+        if (nextQuestionDiv) nextQuestionDiv.style.display = 'flex';
+        if (returnHomeDiv) returnHomeDiv.style.display = 'flex';
+
+    });
+
+</script>

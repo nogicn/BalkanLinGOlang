@@ -1,0 +1,11 @@
+<div class="main-search">
+  <div class="flex-container">
+    <img class="two-aliens" src="/images/two-aliens-deciding.svg" alt="" />
+    {% for dictionary in dictionaries %}
+    <div class="language-add" onclick="location.href='/dictionary/addDictionaryToUser/{{ dictionary.ID }}';">
+      <div class="language-name">{{ dictionary.Name }}</div>
+      <img src="/images/black-add.png" alt="" />
+    </div>
+    {% endfor %}
+  </div>
+</div>

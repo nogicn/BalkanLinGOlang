@@ -1,0 +1,54 @@
+<script>
+
+
+    var recordButton = document.getElementById('recordButton');
+    var audioPlayer = document.getElementById('audioPlayer');
+    var audioInput = document.getElementById('audioInput');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+
+    recordButton.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (!isRecording) {
+            // Start recording
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = event => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+                    mediaRecorder.onstop = () => {
+                        var audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        var audioUrl = URL.createObjectURL(audioBlob);
+                        audioPlayer.src = audioUrl;
+                        audioPlayer.style.display = 'block';
+
+                        // Create FormData and append the audio blob
+                        var formData = new FormData();
+                        formData.append('pronunciation', audioBlob, 'recording.wav');
+
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordButton.textContent = 'Stop Recording';
+                })
+                .catch(error => {
+                    console.error('Error accessing the microphone:', error);
+                });
+        } else {
+            // Stop recording
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordButton.textContent = 'Start Recording';
+            }
+        }
+    });
+    
+</script>
+

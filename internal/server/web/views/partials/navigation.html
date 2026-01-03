@@ -1,0 +1,12 @@
+<div class="return-home">
+  <div hx-get="/dictionary" hx-target=".main" style="cursor: pointer;">
+    <img src="/images/orange-home.png" alt="" />
+    <p>završi sesiju učenja</p>
+  </div>
+</div>
+<div class="next-question">
+  <div hx-get="/learnSession/{{ dictionaryId }}" hx-target=".main" style="opacity: 0">
+    <img src="/images/orange-next.png" alt="" />
+    <p>sljedeće pitanje</p>
+  </div>
+</div>

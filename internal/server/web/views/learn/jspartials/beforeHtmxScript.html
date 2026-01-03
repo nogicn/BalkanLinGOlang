@@ -1,0 +1,24 @@
+<script>
+    mainContent = document.querySelector('.main-content');
+    mainContent.addEventListener('htmx:afterSwap', function (event) {
+        // Add your condition to decide when to prevent the request
+        if (shouldPreventRequest(event.detail)) {
+            event.preventDefault();
+            console.log('HTMX Request Prevented');
+            // append div to answer with error message
+            var answerDiv = document.getElementById('answer');
+            answerDiv.innerHTML = '<div class="answer"> <p class="answer" style="color: red">PRVO UPIŠITE RIJEČ</p> </div>';
+        }
+        
+    });
+
+    function shouldPreventRequest(detail) {
+        // Implement your logic here
+        // For example, check if a certain input field is empty
+        var input = document.getElementById('manualInput');
+        if (!input || input.value.trim() === '') {
+            return true; // Prevent request if the input is empty
+        }
+        return false;
+    }
+</script>
