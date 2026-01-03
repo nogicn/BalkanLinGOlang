@@ -1,5 +1,5 @@
 # Change these variables as necessary.
-MAIN_PACKAGE_PATH := ./cmd/api/
+MAIN_PACKAGE_PATH := ./
 BINARY_NAME := BalkanLinGO
 
 # ==================================================================================== #
@@ -60,7 +60,7 @@ test/cover:
 .PHONY: build
 build:
 # Include additional build steps, like TypeScript, SCSS or Tailwind compilation here...
-	@go build -o main cmd/api/main.go
+	go build ${MAIN_PACKAGE_PATH}
 
 ## run: run the  application
 .PHONY: run
