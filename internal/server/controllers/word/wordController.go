@@ -2,7 +2,9 @@ package wordcontroller
 
 import (
 	"BalkanLinGO/internal/db"
-	dbr "BalkanLinGO/internal/db/repository"
+	"BalkanLinGO/internal/db/models/dictionarydb"
+	"BalkanLinGO/internal/db/models/worddb"
+	dictionarycontroller "BalkanLinGO/internal/server/controllers/dictionary"
 	"BalkanLinGO/internal/server/middleware"
 	"fmt"
 	"strconv"
@@ -10,20 +12,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type WordController struct {
-	repo *dbr.Queries
-}
-
-func New(dbService db.Service) *WordController {
-	return &WordController{
-		repo: dbService.GetRepository(),
-	}
-}
-
-func (wc *WordController) EditWord(c *fiber.Ctx) error {
+func EditWord(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 		id := c.Params("id")
@@ -32,23 +24,23 @@ func (wc *WordController) EditWord(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		word, err := wc.repo.GetWordByID(c.Context(), int64(idInt))
+		word, err := worddb.GetWordByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		dictionary, err := wc.repo.GetDictionaryByID(c.Context(), word.DictionaryID)
+		dictionary, err := dictionarydb.GetDictionaryByID(db.DB, word.DictionaryID)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		return c.Render("word/editWord", fiber.Map{"word": word, "IsAdmin": c.Locals("is_admin"), "dictionary": dictionary, "wordactionurl": "editWord"})
+		return c.Render("word/editWord", fiber.Map{"word": word, "IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
 	}
 }
 
-func (wc *WordController) SaveWord(c *fiber.Ctx) error {
+func SaveWord(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 		// get data from form
@@ -65,14 +57,7 @@ func (wc *WordController) SaveWord(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 		if id == "" {
-			err = wc.repo.CreateWord(c.Context(), dbr.CreateWordParams{
-				ForeignWord:        foreignWord,
-				ForeignDescription: foreignDescription,
-				NativeWord:         nativeWord,
-				NativeDescription:  nativeDescription,
-				Pronunciation:      pronunciation,
-				DictionaryID:       int64(dictIDInt),
-			})
+			err = worddb.CreateWord(db.DB, &worddb.Word{ForeignWord: foreignWord, ForeignDescription: foreignDescription, NativeWord: nativeWord, NativeDescription: nativeDescription, Pronunciation: pronunciation, DictionaryID: dictIDInt})
 			if err != nil {
 				fmt.Println(err)
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju reči!", "link": "/dashboard"})
@@ -82,14 +67,7 @@ func (wc *WordController) SaveWord(c *fiber.Ctx) error {
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 			}
-			err = wc.repo.UpdateWord(c.Context(), dbr.UpdateWordParams{
-				ID:                 int64(idInt),
-				ForeignWord:        foreignWord,
-				ForeignDescription: foreignDescription,
-				NativeWord:         nativeWord,
-				NativeDescription:  nativeDescription,
-				Pronunciation:      pronunciation,
-			})
+			err = worddb.UpdateWord(db.DB, &worddb.Word{ID: idInt, ForeignWord: foreignWord, ForeignDescription: foreignDescription, NativeWord: nativeWord, NativeDescription: nativeDescription, Pronunciation: pronunciation, DictionaryID: dictIDInt})
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju reči!", "link": "/dashboard"})
 			}
@@ -98,10 +76,10 @@ func (wc *WordController) SaveWord(c *fiber.Ctx) error {
 	}
 }
 
-func (wc *WordController) AddWord(c *fiber.Ctx) error {
+func AddWord(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 		dictID := c.Params("id")
@@ -110,19 +88,19 @@ func (wc *WordController) AddWord(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		dictionary, err := wc.repo.GetDictionaryByID(c.Context(), int64(dictIDInt))
+		dictionary, err := dictionarydb.GetDictionaryByID(db.DB, dictIDInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		return c.Render("word/editWord", fiber.Map{"IsAdmin": c.Locals("is_admin"), "dictionary": dictionary, "wordactionurl": "addWord"})
+		return c.Render("word/addWord", fiber.Map{"IsAdmin": c.Locals("is_admin"), "dictionary": dictionary})
 	}
 }
 
-func (wc *WordController) DeleteWord(c *fiber.Ctx) error {
+func DeleteWord(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 		id := c.Params("wordId")
@@ -135,17 +113,16 @@ func (wc *WordController) DeleteWord(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		err = wc.repo.DeleteWordByID(c.Context(), int64(idInt))
+		err = worddb.DeleteWordByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri brisanju reči!", "link": "/dashboard"})
 		}
 
-		dictId := c.Params("dictId")
-		return c.Redirect("/dictionary/dictSearch/" + dictId)
+		return dictionarycontroller.SearchDictionary(c)
 	}
 }
 
-func (wc *WordController) CreatePronunciation(c *fiber.Ctx) error {
+func CreatePronunciation(c *fiber.Ctx) error {
 	id := c.FormValue("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
@@ -158,22 +135,22 @@ func (wc *WordController) CreatePronunciation(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
 	}
-	word := dbr.Word{
-		ID:                 int64(idInt),
-		Foreignword:        c.FormValue("foreignWord"),
-		Foreigndescription: c.FormValue("foreignDescription"),
-		Nativeword:         c.FormValue("nativeWord"),
-		Nativedescription:  c.FormValue("nativeDescription"),
+	word := worddb.Word{
+		ID:                 idInt,
+		ForeignWord:        c.FormValue("foreignWord"),
+		ForeignDescription: c.FormValue("foreignDescription"),
+		NativeWord:         c.FormValue("nativeWord"),
+		NativeDescription:  c.FormValue("nativeDescription"),
 		Pronunciation:      c.FormValue("pronunciation"),
 	}
 
-	dictionary, err := wc.repo.GetDictionaryByID(c.Context(), int64(dictionaryIDInt))
+	dictionary, err := dictionarydb.GetDictionaryByID(db.DB, dictionaryIDInt)
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/"})
 	}
 
 	filename := randStringBytes(32) + ".mp3"
-	err = middleware.GenerateSpeech(word.Foreignword, filename)
+	err = middleware.GenerateSpeech(word.ForeignWord, filename)
 	if err != nil {
 		return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri generisanju izgovora!", "link": "/"})
 	}

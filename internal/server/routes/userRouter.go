@@ -1,26 +1,25 @@
-package server
+package routes
 
 import (
 	usercontroller "BalkanLinGO/internal/server/controllers/user"
 	"BalkanLinGO/internal/server/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-func (s *FiberServer) RegisterUserRouter() {
-	usercontroller := usercontroller.New(s.db)
-
+func UsersRouter(app *fiber.App, session *session.Store) {
 	// public routes (no auth)
-	route := s.Group("/user")
+	route := app.Group("/user")
 
-	route.Post("/login", func(c *fiber.Ctx) error { return usercontroller.LoginUser(c, s.session) })
+	route.Post("/login", func(c *fiber.Ctx) error { return usercontroller.LoginUser(c, session) })
 	route.Post("/register", usercontroller.CreateUser)
-	route.Post("/createPass", func(c *fiber.Ctx) error { return usercontroller.CreatePass(c, s.session) })
+	route.Post("/createPass", func(c *fiber.Ctx) error { return usercontroller.CreatePass(c, session) })
 
 	// protected routes: apply HTMX middleware and authentication
-	protected := s.Group("/user")
-	protected.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) })
-	protected.Get("/logout", func(c *fiber.Ctx) error { return usercontroller.LogoutUser(c, s.session) })
+	protected := app.Group("/user")
+	protected.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, session) })
+	protected.Get("/logout", func(c *fiber.Ctx) error { return usercontroller.LogoutUser(c, session) })
 
 	//use htmx for remaining routes
 	protected.Use(func(c *fiber.Ctx) error { return middleware.HtmxMiddleware(c) })

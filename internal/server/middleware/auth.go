@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"BalkanLinGO/internal/db"
+	"BalkanLinGO/internal/db/models/userdb"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -9,11 +10,11 @@ import (
 
 // check if user is authenticated by checking if there is a session and comparing it to the database
 
-func CheckAuth(c *fiber.Ctx, s *session.Store, DB db.Service) error {
+func CheckAuth(c *fiber.Ctx, store *session.Store) error {
 
-	repo := DB.GetRepository()
+	db := db.DB
 	// get session
-	session, err := s.Get(c)
+	session, err := store.Get(c)
 
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
@@ -24,9 +25,9 @@ func CheckAuth(c *fiber.Ctx, s *session.Store, DB db.Service) error {
 		}
 
 	userid := session.Get("user_id").(int)
-	user, _ := userdb.GetUserByID(repo, userid)*/
+	user, _ := userdb.GetUserByID(db, userid)*/
 
-	user, _ := repo.GetUserByID(c.Context(), 1)
+	user, _ := userdb.GetUserByID(db, 1)
 
 	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)

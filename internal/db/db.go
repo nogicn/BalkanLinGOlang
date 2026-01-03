@@ -1,11 +1,9 @@
 package db
 
 import (
-	"context"
 	"database/sql"
-	"embed"
 	"io"
-	"path/filepath"
+	"time"
 
 	"log"
 	"os"
@@ -15,32 +13,16 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	repository "BalkanLinGO/internal/db/repository"
-
-	"github.com/pressly/goose/v3"
+	"BalkanLinGO/internal/db/models/activequestiondb"
+	"BalkanLinGO/internal/db/models/dictionarydb"
+	"BalkanLinGO/internal/db/models/dictionaryuserdb"
+	"BalkanLinGO/internal/db/models/languagedb"
+	"BalkanLinGO/internal/db/models/userdb"
+	"BalkanLinGO/internal/db/models/userworddb"
+	"BalkanLinGO/internal/db/models/worddb"
 )
 
-//var DB *sql.DB
-//var Queries *sqlcdb.Queries
-
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
-var (
-	dburl      string
-	dbInstance *service
-)
-
-type Service interface {
-	Close() error
-	GetRepository() *repository.Queries
-	Init()
-}
-
-type service struct {
-	DB         *sql.DB
-	Repository *repository.Queries
-}
+var DB *sql.DB
 
 func copyFile(src, dst string) error {
 	in, err := os.Open(src)
@@ -65,107 +47,78 @@ func copyFile(src, dst string) error {
 	return out.Close()
 }
 
-func New(dburlOverride string) Service {
-	dburl = dburlOverride
-	doesExist := false
-
-	if dburl == "" {
-		log.Fatal("BLUEPRINT_DB_URL is not set, check your .env file")
-	}
-
-	// Reuse Connection
-	if dbInstance != nil {
-		return dbInstance
-	}
-
-	// check if file exists
-	if _, err := os.Stat(dburl); err == nil {
-		doesExist = true
-	}
-
-	// Ensure the directory exists
-	dir := filepath.Dir(dburl)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		log.Fatalf("failed to create database directory: %v", err)
-	}
-
-	// Use mode=rwc so SQLite creates the DB file if it doesn't exist
-	db, err := sql.Open("sqlite", "file:"+dburl+"?mode=rwc&_journal_mode=WAL&_txlock=immediate")
+func Init() {
+	// create copy of a file
+	err := copyFile("./internal/db/testDB.sqlite3", "./internal/db/database.sqlite3")
 	if err != nil {
-		// This will not be a connection error, but a DSN parse error or
-		// another initialization error.
 		log.Fatal(err)
 	}
-	// Verify we can connect / open the DB now
-	if err := db.Ping(); err != nil {
-		log.Fatalf("failed to connect to sqlite db: %v", err)
+	//os.Setenv("SQLITE_LOG", "1")
+	dsn := "file:./internal/db/database.sqlite3?cache=shared" //&_journal_mode=WAL
+	DB, err = sql.Open("sqlite", dsn)
+	/*loggerAdapter := zerologadapter.New(zerolog.New(os.Stdout))
+	DB = sqldblogger.OpenDriver(dsn, DB.Driver(), loggerAdapter, sqldblogger.WithSQLQueryAsMessage(true), sqldblogger.WithPreparerLevel(sqldblogger.LevelDebug), // default: LevelInfo
+		sqldblogger.WithQueryerLevel(sqldblogger.LevelDebug), sqldblogger.WithSQLArgsFieldname("sql_args"))
+	DB.Ping()*/
+	// write ahead logging
+	//DB, err = sql.Open("sqlite3", "file::memory:?cache=shared&_journal_mode=WAL")
+	//DB, err = sql.Open("mysql", "root:my-secret-pw@/surfpit")
+	if err != nil {
+		log.Fatal(err)
 	}
+	log.Println("Connected to database")
+	DB.SetMaxOpenConns(100)
+	DB.SetMaxIdleConns(100)
+	DB.SetConnMaxIdleTime(time.Minute * 3)
+	// enable logs
+	if os.Getenv("MIGRATE") == "true" {
+		createAllTables()
 
-	goose.SetBaseFS(embedMigrations)
+		// Insert sample users
+		sampleUsers := []string{"admin", "user"}
+		sampleSurname := []string{"admin", "user"}
+		sampleEmail := []string{"admin@balkanlingo.online", "user@balkanlingo.online"}
+		samplePassword := []string{"123", "123"}
+		sampleIsAdmin := []int{1, 0}
 
-	if err := goose.SetDialect("sqlite"); err != nil {
-		log.Fatalf("goose set dialect failed: %v", err)
-	}
-
-	dbInstance = &service{
-		DB:         db,
-		Repository: repository.New(db),
-	}
-
-	if !doesExist {
-		// Run migrations
-
-		if err := goose.Up(db, "migrations"); err != nil {
-			log.Fatalf("goose up failed: %v", err)
-		}
-		dbInstance.Init()
-	}
-
-	return dbInstance
-}
-
-// Insert sample data
-func (s *service) Init() {
-	// users
-	ctx := context.Background()
-	sampleUsers := []string{"admin", "user"}
-	sampleSurname := []string{"admin", "user"}
-	sampleEmail := []string{"admin@balkanlingo.online", "user@balkanlingo.online"}
-	samplePassword := []string{"123", "123"}
-	sampleIsAdmin := []bool{true, false}
-
-	for i, u := range sampleUsers {
-		if sampleIsAdmin[i] {
-			err := dbInstance.Repository.CreateAdmin(ctx, repository.CreateAdminParams{
-				Name:     u,
-				Surname:  sampleSurname[i],
-				Email:    sampleEmail[i],
-				Password: samplePassword[i],
-			})
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			err := dbInstance.Repository.CreateUser(ctx, repository.CreateUserParams{
-				Name:     u,
-				Surname:  sampleSurname[i],
-				Email:    sampleEmail[i],
-				Password: samplePassword[i],
-			})
+		for i, u := range sampleUsers {
+			var userModel userdb.User
+			userModel.Name = u
+			userModel.Surname = sampleSurname[i]
+			userModel.Email = sampleEmail[i]
+			userModel.Password = samplePassword[i]
+			userModel.IsAdmin = sampleIsAdmin[i]
+			err := userdb.CreateUser(DB, &userModel)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
+
 	}
 
-	// dictionaries
-
 }
 
-func (s *service) Close() error {
-	return s.DB.Close()
-}
-
-func (s *service) GetRepository() *repository.Queries {
-	return s.Repository
+func createAllTables() {
+	// Create tables
+	if err := userdb.CreateUserTable(DB); err != nil {
+		log.Fatal(err, "user.CreateUserTable")
+	}
+	if err := languagedb.CreateLanguageTable(DB); err != nil {
+		log.Fatal(err, "language.CreateLanguageTable")
+	}
+	if err := dictionarydb.CreateDictionaryTable(DB); err != nil {
+		log.Fatal(err, "dictionary.CreateDictionaryTable")
+	}
+	if err := dictionaryuserdb.CreateDictionaryUserTable(DB); err != nil {
+		log.Fatal(err, "dictionaryuser.CreateDictionaryUserTable")
+	}
+	if err := worddb.CreateWordTable(DB); err != nil {
+		log.Fatal(err, "word.CreateWordTable")
+	}
+	if err := userworddb.CreateUserWordTable(DB); err != nil {
+		log.Fatal(err, "userword.CreateUserWordTable")
+	}
+	if err := activequestiondb.CreateActiveQuestionTable(DB); err != nil {
+		log.Fatal(err, "activequestion.CreateActiveQuestionTable")
+	}
 }

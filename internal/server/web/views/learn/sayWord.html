@@ -12,8 +12,8 @@
             <p>PROČITAJ I IZGOVORI RIJEČ</p>
         </div>
         <form id="formData">
-            <p class="big-bold">{{ word.Foreignword }}</p>
-            <p class="phrase">{{ word.ForeignDescription }}</p>
+            <p class="big-bold">{{ word.foreignWord }}</p>
+            <p class="phrase">{{ word.foreignDescription }}</p>
             <img class="say" src="/images/orange-mic.png" alt="" id="recordButton">
             <input hidden type="file" name="pronunciation" id="audioInput" accept="audio/*">
             <audio id="audioPlayer" controls></audio>

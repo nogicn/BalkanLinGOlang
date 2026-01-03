@@ -4,15 +4,15 @@
     <h3>ODABERI TOČAN PRIJEVOD</h3>
   </div>
   <div class="word-and-phrase">
-    <p class="word-hrv">{{ currentWord.Nativeword }}</p>
-    <p class="phrase-hrv">{{ currentWord.Nativedescription }}</p>
+    <p class="word-hrv">{{ currentWord.NativeWord }}</p>
+    <p class="phrase-hrv">{{ currentWord.NativeDescription }}</p>
   </div>
   <div class="kahoot-area">
     {% for word in words %}
     <div hx-post="/dictionary/checkWord/{{ word.ID }}" hx-target="this" hx-trigger="click">
       <div class="kahoot-card" id="card">
-        <div class="kahoot-word">{{ word.Foreignword }}</div>
-        <div class="kahoot-phrase">HINT: {{ word.Foreigndescription }}</div>
+        <div class="kahoot-word">{{ word.ForeignWord }}</div>
+        <div class="kahoot-phrase">HINT: {{ word.ForeignDescription }}</div>
       </div>
     </div>
     {% endfor %}

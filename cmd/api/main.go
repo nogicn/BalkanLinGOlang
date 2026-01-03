@@ -1,47 +1,21 @@
 package main
 
 import (
-	"BalkanLinGO/internal/server"
-	"context"
-	"fmt"
+	"BalkanLinGO/internal/db"
+	"BalkanLinGO/internal/server/routes"
 	"log"
-	"os"
-	"os/signal"
-	"strconv"
-	"syscall"
-	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/session"
 
 	//"github.com/gofiber/template/html/v2"
 
+	"github.com/gofiber/template/django/v3"
 	"github.com/joho/godotenv"
 )
 
 //templ generate
-
-func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
-	// Create context that listens for the interrupt signal from the OS.
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	// Listen for the interrupt signal.
-	<-ctx.Done()
-
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
-	stop() // Allow Ctrl+C to force shutdown
-
-	// The context is used to inform the server it has 5 seconds to finish
-	// the request it is currently handling
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := fiberServer.ShutdownWithContext(ctx); err != nil {
-		log.Printf("Server forced to shutdown with error: %v", err)
-	}
-
-	log.Println("Server exiting")
-
-	// Notify the main goroutine that the shutdown is complete
-	done <- true
-}
 
 func main() {
 	var err error = nil
@@ -50,25 +24,67 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	server := server.New(os.Getenv("DB_URL"))
 
-	server.RegisterFiberRoutes()
+	//engine := html.New("./views", ".html")
+	engine := django.New("./internal/server/web/views", ".html")
+	//engine.Reload(true) // Optional. Default: false
+	//engine.Debug(true)  // Optional. Default: false
 
-	// Create a done channel to signal when the shutdown is complete
-	done := make(chan bool, 1)
+	/*Store := memory.New(memory.Config{
+		GCInterval: 6000 * time.Second,
+	})*/
+	session := session.New()
+	app := fiber.New(fiber.Config{
+		Views:             engine,
+		ReduceMemoryUsage: false,
+		//CompressedFileSuffix: ".fiber.gz",
+		//Prefork:           true,
+	})
+	// debug
+	app.Use(logger.New())
 
-	go func() {
-		port, _ := strconv.Atoi(os.Getenv("PORT"))
-		err := server.Listen(fmt.Sprintf(":%d", port))
-		if err != nil {
-			panic(fmt.Sprintf("http server error: %s", err))
-		}
-	}()
+	// add store to ap
 
-	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(server, done)
+	// create locals
+	/*app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
 
-	// Wait for the graceful shutdown to complete
-	<-done
-	log.Println("Graceful shutdown complete.")
+		Next: func(c *fiber.Ctx) bool {
+			// change headers to accept gzip if the request contains both gzip and br
+			if c.Request().Header.Peek("Accept-Encoding") != nil {
+				bits := c.Request().Header.Peek("Accept-Encoding")
+				if bits != nil {
+					if bytes.Contains(bits, []byte("gzip")) && bytes.Contains(bits, []byte("br")) {
+						c.Request().Header.Set("Accept-Encoding", "gzip")
+					}
+
+				}
+				return false // set to true to disable
+			}
+			return true
+		},
+	}))*/
+	//app.Use(pprof.New())
+
+	//app.Use(cache.New())
+	db.Init()
+	//defer db.DB.Close()
+	app.Static("/", "./internal/server/web/public/", fiber.Static{
+		Compress: false,
+	})
+
+	routes.IndexRouter(app, session)
+	routes.UsersRouter(app, session)
+	routes.DictionaryRouter(app, session)
+	routes.LocaleRouter(app, session)
+	routes.WordRouter(app, session)
+
+	/*app.Get("/test", func(c *fiber.Ctx) error {
+		handler := adaptor.HTTPHandler(templ.Handler(home.Home()))
+
+		return handler(c)
+	})*/
+
+	log.Fatal(app.Listen(":3000"))
+
 }

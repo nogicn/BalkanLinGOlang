@@ -2,7 +2,7 @@ package usercontroller
 
 import (
 	"BalkanLinGO/internal/db"
-	dbr "BalkanLinGO/internal/db/repository"
+	"BalkanLinGO/internal/db/models/userdb"
 	"BalkanLinGO/internal/server/middleware"
 	"database/sql"
 	"fmt"
@@ -13,19 +13,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserController struct {
-	repo *dbr.Queries
-}
-
-func New(dbService db.Service) *UserController {
-	return &UserController{
-		repo: dbService.GetRepository(),
-	}
-}
-
 // GetUsers returns all users
-func (uc *UserController) GetUsers(c *fiber.Ctx) error {
-	users, err := uc.repo.GetAllUsers(c.Context())
+func GetUsers(c *fiber.Ctx) error {
+	users, err := userdb.GetAllUsers(db.DB)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -34,7 +24,7 @@ func (uc *UserController) GetUsers(c *fiber.Ctx) error {
 }
 
 // DeleteUser deletes a user by ID
-func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
+func DeleteUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	// Convert id to integer
@@ -44,7 +34,7 @@ func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	// Call the DeleteUser function from the user model
-	err = uc.repo.DeleteUserByID(c.Context(), int64(idInt))
+	err = userdb.DeleteUserByID(db.DB, idInt)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -52,7 +42,7 @@ func (uc *UserController) DeleteUser(c *fiber.Ctx) error {
 	return c.Status(200).SendString("User deleted")
 }
 
-func (uc *UserController) CreateUser(c *fiber.Ctx) error {
+func CreateUser(c *fiber.Ctx) error {
 	name := c.FormValue("name")
 
 	surname := c.FormValue("surname")
@@ -62,12 +52,14 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 
 	password := randStringBytes(12)
 
-	err := uc.repo.CreateUser(c.Context(), dbr.CreateUserParams{
+	newuser := userdb.User{
 		Name:     name,
 		Surname:  surname,
 		Email:    email,
 		Password: password,
-	})
+		IsAdmin:  0,
+	}
+	err := userdb.CreateUser(db.DB, &newuser)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -81,7 +73,7 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 	}
 }
 
-func (uc *UserController) CreatePass(c *fiber.Ctx, s *session.Store) error {
+func CreatePass(c *fiber.Ctx, s *session.Store) error {
 	password := c.FormValue("password")
 	password2 := c.FormValue("password2")
 	email := c.FormValue("email")
@@ -96,16 +88,13 @@ func (uc *UserController) CreatePass(c *fiber.Ctx, s *session.Store) error {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
 	}
 
-	_, err = uc.repo.UpdatePasswordByEmail(c.Context(), dbr.UpdatePasswordByEmailParams{
-		Password: string(hashedPassword),
-		Email:    email,
-	})
+	_, err = userdb.UpdatePasswordByEmail(db.DB, email, string(hashedPassword))
 	if err != nil {
 		fmt.Println(err)
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju lozinke!", "link": "/login"})
 	}
 
-	err = uc.loginProcedure(c, s, dbr.User{}, email, password)
+	err = loginProcedure(c, s, userdb.User{}, email, password)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
 	}
@@ -114,11 +103,11 @@ func (uc *UserController) CreatePass(c *fiber.Ctx, s *session.Store) error {
 
 }
 
-func (uc *UserController) LoginUser(c *fiber.Ctx, s *session.Store) error {
+func LoginUser(c *fiber.Ctx, s *session.Store) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 	// Check if user exists
-	user, err := uc.repo.GetUserByEmail(c.Context(), email)
+	user, err := userdb.GetUserByEmail(db.DB, email)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -132,7 +121,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx, s *session.Store) error {
 			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Pogrešna lozinka ili korisnik!", "link": "/login"})
 		}
 
-		err = uc.loginProcedure(c, s, user, email, password)
+		err = loginProcedure(c, s, user, email, password)
 		if err != nil {
 			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri prijavi!", "link": "/login"})
 		}
@@ -141,7 +130,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx, s *session.Store) error {
 
 }
 
-func (uc *UserController) LogoutUser(c *fiber.Ctx, s *session.Store) error {
+func LogoutUser(c *fiber.Ctx, s *session.Store) error {
 	session, err := s.Get(c)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
@@ -154,7 +143,7 @@ func (uc *UserController) LogoutUser(c *fiber.Ctx, s *session.Store) error {
 	return c.Redirect("/login")
 }
 
-func (uc *UserController) SetAdmin(c *fiber.Ctx) error {
+func SetAdmin(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	// Convert id to integer
@@ -164,21 +153,21 @@ func (uc *UserController) SetAdmin(c *fiber.Ctx) error {
 	}
 
 	// get user from database
-	curUser, err := uc.repo.GetUserByID(c.Context(), int64(c.Locals("user_id").(int64)))
+	curUser, err := userdb.GetUserByID(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	if curUser.ID == int64(idInt) {
+	if curUser.ID == idInt {
 		return c.Status(500).SendString("Ne možete postaviti sami sebe za administratora!")
 	}
 
 	// Call the DeleteUser function from the user model
-	user, err := uc.repo.SetAdminByID(c.Context(), int64(idInt))
+	user, err := userdb.SetAdminByID(db.DB, idInt)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	_, err = uc.repo.GetAllUsers(c.Context())
+	_, err = userdb.GetAllUsers(db.DB)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -188,17 +177,8 @@ func (uc *UserController) SetAdmin(c *fiber.Ctx) error {
 
 }
 
-func (uc *UserController) ListUsers(c *fiber.Ctx) error {
-	email := c.FormValue("email")
-
-	emailNull := sql.NullString{String: email, Valid: false}
-	if email != "" {
-		emailNull = sql.NullString{String: email, Valid: true}
-	} else {
-		emailNull = sql.NullString{String: "", Valid: true}
-	}
-
-	users, err := uc.repo.GetAllUsersLikeEmail(c.Context(), emailNull)
+func ListUsers(c *fiber.Ctx) error {
+	users, err := userdb.GetAllUsersLikeEmail(db.DB, c.FormValue("email"))
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -206,35 +186,31 @@ func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 	return c.Render("user/partials/userList", fiber.Map{"users": users})
 }
 
-func (uc *UserController) EditUser(c *fiber.Ctx) error {
+func EditUser(c *fiber.Ctx) error {
 	if c.Locals("user_id") == nil {
 		return c.Status(500).SendString("Error")
 	}
 
-	id, ok := c.Locals("user_id").(int64)
+	id, ok := c.Locals("user_id").(int)
 	// check if nil
 	if !ok || id == 0 {
 		return c.Status(500).SendString("Error")
 	}
 
-	user, err := uc.repo.GetUserByID(c.Context(), int64(id))
+	user, err := userdb.GetUserByID(db.DB, id)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.Render("user/userEdit", fiber.Map{"user": user})
 }
 
-func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
+func UpdateUser(c *fiber.Ctx) error {
 
 	name := c.FormValue("name")
 	surname := c.FormValue("surname")
 
 	token := c.Locals("token").(sql.NullString)
-	_, err := uc.repo.UpdateUserByToken(c.Context(), dbr.UpdateUserByTokenParams{
-		Name:    name,
-		Surname: surname,
-		Token:   token,
-	})
+	_, err := userdb.UpdateUserByToken(db.DB, name, surname, token.String)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
@@ -242,10 +218,10 @@ func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 	return c.Redirect("/user/edit")
 }
 
-func (uc *UserController) ResetPass(c *fiber.Ctx) error {
+func ResetPass(c *fiber.Ctx) error {
 	email := c.FormValue("email")
 
-	user, err := uc.repo.GetUserByEmail(c.Context(), email)
+	user, err := userdb.GetUserByEmail(db.DB, email)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Korisnik ne postoji!", "link": "/login"})
 	}
@@ -256,19 +232,13 @@ func (uc *UserController) ResetPass(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	}
-	_, err = uc.repo.UpdatePasswordByEmail(c.Context(), dbr.UpdatePasswordByEmailParams{
-		Password: password,
-		Email:    email,
-	})
+	_, err = userdb.UpdatePasswordByEmail(db.DB, email, password)
 
 	//err = middleware.SendEmail(email, user.Password)
 
 	if err != nil {
 		// return last user password
-		_, errin := uc.repo.UpdatePasswordByEmail(c.Context(), dbr.UpdatePasswordByEmailParams{
-			Password: user.Password,
-			Email:    email,
-		})
+		_, errin := userdb.UpdatePasswordByEmail(db.DB, email, user.Password)
 		if errin != nil {
 			return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri popravljanju greške!", "link": "/login"})
 		}

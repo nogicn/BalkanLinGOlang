@@ -1,7 +1,7 @@
 <div id="words" style="all: unset; display: contents">
   {% for word in words %}
   <div class="word-add">
-    <div class="actual-word">{{ word.Foreignword }}</div>
+    <div class="actual-word">{{ word.ForeignWord }}</div>
     <div class="word-buttons">
       <div hx-get="/word/editWord/{{ word.ID }}" hx-target=".main" hx-swap="innerHTML">
         <img class="edit-button" src="/images/blue-edit.png" alt="Edit" />

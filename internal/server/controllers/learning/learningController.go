@@ -2,9 +2,9 @@ package learningcontroller
 
 import (
 	"BalkanLinGO/internal/db"
-	dbr "BalkanLinGO/internal/db/repository"
-	"database/sql"
-
+	"BalkanLinGO/internal/db/models/activequestiondb"
+	"BalkanLinGO/internal/db/models/userworddb"
+	"BalkanLinGO/internal/db/models/worddb"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -13,31 +13,21 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type LearnController struct {
-	repo *dbr.Queries
-}
-
-func New(dbService db.Service) *LearnController {
-	return &LearnController{
-		repo: dbService.GetRepository(),
-	}
-}
-
-func (lc *LearnController) LearnSession(c *fiber.Ctx) error {
+func LearnSession(c *fiber.Ctx) error {
 	id := c.Params("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return c.Status(400).SendString("Invalid ID")
 	}
 
-	activequestion, activeerr := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
-	if activequestion == (dbr.ActiveQuestion{}) {
+	activequestion, activeerr := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
 
-		err := lc.createWords(c, idInt)
+		err := createWords(c, idInt)
 		if err != nil {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": err, "link": "/dashboard"})
 		}
-		err = lc.setActiveQuestion(&activequestion, c, idInt, 1)
+		err = setActiveQuestion(&activequestion, c, idInt, 1)
 		if err != nil {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": err, "link": "/dashboard"})
 		}
@@ -49,22 +39,22 @@ func (lc *LearnController) LearnSession(c *fiber.Ctx) error {
 		}
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result set") {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi!", "link": "/dashboard"})
 		}
 	}
-	if activeword.DictionaryID != int64(idInt) {
-		err := lc.repo.DeleteActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	if activeword.DictionaryID != idInt {
+		err := activequestiondb.DeleteActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 		if err != nil {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod brisanja aktivne riječi!", "link": "/dashboard"})
 		}
-		err = lc.createWords(c, idInt)
+		err = createWords(c, idInt)
 		if err != nil {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": err, "link": "/dashboard"})
 		}
-		err = lc.setActiveQuestion(&activequestion, c, idInt, 1)
+		err = setActiveQuestion(&activequestion, c, idInt, 1)
 		if err != nil {
 			return c.Status(404).Render("forOfor", fiber.Map{"status": "500", "errorText": err, "link": "/dashboard"})
 		}
@@ -72,27 +62,27 @@ func (lc *LearnController) LearnSession(c *fiber.Ctx) error {
 
 	switch activequestion.Type {
 	case 1:
-		lc.LearnSessionForeignNative(c)
+		LearnSessionForeignNative(c)
 
 	case 2:
-		lc.LearnSessionNativeForeign(c)
+		LearnSessionNativeForeign(c)
 
 	case 3:
-		lc.LearnSessionWriting(c)
+		LearnSessionWriting(c)
 
 	case 4:
-		lc.LearnSessionPronunciation(c)
+		LearnSessionPronunciation(c)
 
 	default:
-		lc.LearnSessionForeignNative(c)
+		LearnSessionForeignNative(c)
 
 	}
 
 	return nil
 }
 
-func (lc *LearnController) LearnSessionForeignNative(c *fiber.Ctx) error {
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+func LearnSessionForeignNative(c *fiber.Ctx) error {
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
@@ -106,37 +96,34 @@ func (lc *LearnController) LearnSessionForeignNative(c *fiber.Ctx) error {
 		return c.Status(400).SendString("Invalid ID")
 	}
 
-	rows, err := lc.repo.GetViableWordsForUserForDictionary(c.Context(), dbr.GetViableWordsForUserForDictionaryParams{
-		UserID:       int64(c.Locals("user_id").(int64)),
-		DictionaryID: int64(dictidInt),
-	})
+	_, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("user_id").(int), dictidInt)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi! nema rijeci za dict", "link": "/dashboard"})
 	}
 
-	finalWords := []dbr.Word{}
+	finalWords := []worddb.Word{}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
 	finalWords = append(finalWords, activeword)
-	finalWords = fillWordList(rows, finalWords, 3)
+	finalWords = fillWordList(words, finalWords, 3)
 
 	for i := 0; i < len(finalWords); i++ {
-		finalWords[i].Foreignword, finalWords[i].Nativeword = finalWords[i].Nativeword, finalWords[i].Foreignword
-		finalWords[i].Foreigndescription, finalWords[i].Nativedescription = finalWords[i].Nativedescription, finalWords[i].Foreigndescription
+		finalWords[i].ForeignWord, finalWords[i].NativeWord = finalWords[i].NativeWord, finalWords[i].ForeignWord
+		finalWords[i].ForeignDescription, finalWords[i].NativeDescription = finalWords[i].NativeDescription, finalWords[i].ForeignDescription
 	}
 
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
-	activeword.Foreignword, activeword.Nativeword = activeword.Nativeword, activeword.Foreignword
-	activeword.Foreigndescription, activeword.Nativedescription = activeword.Nativedescription, activeword.Foreigndescription
+	activeword.ForeignWord, activeword.NativeWord = activeword.NativeWord, activeword.ForeignWord
+	activeword.ForeignDescription, activeword.NativeDescription = activeword.NativeDescription, activeword.ForeignDescription
 	return c.Render("learn/selectWord", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 2, "IsAdmin": c.Locals("is_admin")})
 
 }
 
-func (lc *LearnController) LearnSessionNativeForeign(c *fiber.Ctx) error {
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+func LearnSessionNativeForeign(c *fiber.Ctx) error {
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
@@ -150,34 +137,31 @@ func (lc *LearnController) LearnSessionNativeForeign(c *fiber.Ctx) error {
 		return c.Status(404).Status(400).SendString("Invalid ID")
 	}
 
-	rows, err := lc.repo.GetViableWordsForUserForDictionary(c.Context(), dbr.GetViableWordsForUserForDictionaryParams{
-		UserID:       int64(c.Locals("user_id").(int64)),
-		DictionaryID: int64(dictidInt),
-	})
+	userWords, words, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("user_id").(int), dictidInt)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja riječi! nema rijeci za dict", "link": "/dashboard"})
 	}
 
-	if len(rows) < 4 {
+	if len(userWords) < 4 {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Nema više riječi za učenje!", "link": "/dashboard"})
 	}
-	finalWords := []dbr.Word{}
+	finalWords := []worddb.Word{}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
 	finalWords = append(finalWords, activeword)
-	finalWords = fillWordList(rows, finalWords, 3)
+	finalWords = fillWordList(words, finalWords, 3)
 
 	rand.Shuffle(len(finalWords), func(i, j int) { finalWords[i], finalWords[j] = finalWords[j], finalWords[i] })
 	return c.Render("learn/selectWord", fiber.Map{"words": finalWords, "dictionaryId": dictidInt, "currentWord": activeword, "next": 3, "IsAdmin": c.Locals("is_admin")})
 
 }
 
-func (lc *LearnController) LearnSessionWriting(c *fiber.Ctx) error {
+func LearnSessionWriting(c *fiber.Ctx) error {
 
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
@@ -190,7 +174,7 @@ func (lc *LearnController) LearnSessionWriting(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Invalid ID")
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
@@ -198,8 +182,8 @@ func (lc *LearnController) LearnSessionWriting(c *fiber.Ctx) error {
 
 }
 
-func (lc *LearnController) LearnSessionPronunciation(c *fiber.Ctx) error {
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+func LearnSessionPronunciation(c *fiber.Ctx) error {
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
@@ -212,7 +196,7 @@ func (lc *LearnController) LearnSessionPronunciation(c *fiber.Ctx) error {
 		return c.Status(500).SendString("Invalid ID")
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška kod dohvaćanja aktivne riječi!", "link": "/dashboard"})
 	}
@@ -220,21 +204,21 @@ func (lc *LearnController) LearnSessionPronunciation(c *fiber.Ctx) error {
 
 }
 
-func (lc *LearnController) CheckAnswer(c *fiber.Ctx) error {
+func CheckAnswer(c *fiber.Ctx) error {
 	answer := c.Params("answer")
 	answer = strings.ToLower(answer)
 
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
 			return c.Status(500).SendString("Greška kod dohvaćanja aktivne riječi activequestion")
 		}
 	}
-	if activequestion == (dbr.ActiveQuestion{}) {
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
 		return c.Redirect("/dashboard")
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result set") {
 			return c.Status(500).SendString("Greška kod dohvaćanja riječi!")
@@ -247,33 +231,25 @@ func (lc *LearnController) CheckAnswer(c *fiber.Ctx) error {
 	}
 
 	if activequestion.Type == 1 {
-		activeword.Foreignword, activeword.Nativeword = activeword.Nativeword, activeword.Foreignword
-		activeword.Foreigndescription, activeword.Nativedescription = activeword.Nativedescription, activeword.Foreigndescription
+		activeword.ForeignWord, activeword.NativeWord = activeword.NativeWord, activeword.ForeignWord
+		activeword.ForeignDescription, activeword.NativeDescription = activeword.NativeDescription, activeword.ForeignDescription
 	}
 	var correct bool
 
-	if int64(answerInt) == activequestion.WordID.Int64 {
+	if answerInt == activequestion.WordID {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 1,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 1)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
 		correct = true
 	} else {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 0,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 0)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
-		activeword, err = lc.repo.GetWordByID(c.Context(), int64(answerInt))
+		activeword, err = worddb.GetWordByID(db.DB, answerInt)
 		if err != nil {
 			if !strings.Contains(err.Error(), "no rows in result set") {
 				return c.Status(500).SendString("Greška kod dohvaćanja riječi!")
@@ -281,26 +257,26 @@ func (lc *LearnController) CheckAnswer(c *fiber.Ctx) error {
 		}
 		correct = false
 	}
-	lc.setActiveQuestion(&activequestion, c, int(activeword.DictionaryID), int(activequestion.Type+1))
+	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
 	return c.Render("learn/partials/word", fiber.Map{"word": activeword, "correct": correct})
 
 }
 
-func (lc *LearnController) CheckWritingAnswer(c *fiber.Ctx) error {
+func CheckWritingAnswer(c *fiber.Ctx) error {
 	answer := c.FormValue("foreignWord")
 	answer = strings.ToLower(answer)
 
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
 			return c.Status(500).SendString("Greška kod dohvaćanja aktivne riječi activequestion")
 		}
 	}
-	if activequestion == (dbr.ActiveQuestion{}) {
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
 		return c.Redirect("/dashboard")
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result set") {
 			return c.Status(500).SendString("Greška kod dohvaćanja riječi!")
@@ -308,48 +284,40 @@ func (lc *LearnController) CheckWritingAnswer(c *fiber.Ctx) error {
 	}
 
 	var correct bool
-	activeword.Foreignword = strings.ToLower(activeword.Foreignword)
-	fmt.Println(answer, activeword.Foreignword)
-	if answer == activeword.Foreignword {
+	activeword.ForeignWord = strings.ToLower(activeword.ForeignWord)
+	fmt.Println(answer, activeword.ForeignWord)
+	if answer == activeword.ForeignWord {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 1,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 1)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
 		correct = true
 	} else {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 0,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 0)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
 		correct = false
 	}
-	lc.setActiveQuestion(&activequestion, c, int(activeword.DictionaryID), int(activequestion.Type+1))
+	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
 	return c.Render("learn/partials/writeWordAnswer", fiber.Map{"word": activeword, "correct": correct})
 
 }
 
-func (lc *LearnController) CheckListeningAnswer(c *fiber.Ctx) error {
-	activequestion, err := lc.repo.GetActiveQuestionByUserID(c.Context(), sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+func CheckListeningAnswer(c *fiber.Ctx) error {
+	activequestion, err := activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result") {
 			return c.Status(500).SendString("Greška kod dohvaćanja aktivne riječi activequestion")
 		}
 	}
-	if activequestion == (dbr.ActiveQuestion{}) {
+	if activequestion == (activequestiondb.ActiveQuestion{}) {
 		return c.Redirect("/dashboard")
 	}
 
-	activeword, err := lc.repo.GetWordByID(c.Context(), activequestion.WordID.Int64)
+	activeword, err := worddb.GetWordByID(db.DB, activequestion.WordID)
 	if err != nil {
 		if !strings.Contains(err.Error(), "no rows in result set") {
 			return c.Status(500).SendString("Greška kod dohvaćanja riječi!")
@@ -360,28 +328,20 @@ func (lc *LearnController) CheckListeningAnswer(c *fiber.Ctx) error {
 	var correct bool
 	if random > 50 {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 1,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 1)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
 		correct = true
 	} else {
 
-		err = lc.repo.SetNewDelayForUser(c.Context(), dbr.SetNewDelayForUserParams{
-			IsCorrect: 0,
-			UserID:    int64(c.Locals("user_id").(int64)),
-			WordID:    activequestion.WordID.Int64,
-		})
+		err = userworddb.SetNewDelayForUser(db.DB, c.Locals("user_id").(int), activequestion.WordID, 0)
 		if err != nil {
 			return c.Status(500).SendString("Greška kod postavljanja nove riječi!")
 		}
 		correct = false
 	}
-	lc.setActiveQuestion(&activequestion, c, int(activeword.DictionaryID), int(activequestion.Type+1))
+	setActiveQuestion(&activequestion, c, activeword.DictionaryID, activequestion.Type+1)
 	return c.Render("learn/partials/sayWordAnswer", fiber.Map{"word": activeword, "correct": correct})
 
 }

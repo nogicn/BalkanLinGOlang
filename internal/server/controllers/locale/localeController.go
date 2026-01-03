@@ -2,26 +2,16 @@ package localecontroller
 
 import (
 	"BalkanLinGO/internal/db"
-	dbr "BalkanLinGO/internal/db/repository"
+	"BalkanLinGO/internal/db/models/languagedb"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type LocaleController struct {
-	repo *dbr.Queries
-}
-
-func New(dbService db.Service) *LocaleController {
-	return &LocaleController{
-		repo: dbService.GetRepository(),
-	}
-}
-
-func (lc *LocaleController) SaveLocale(c *fiber.Ctx) error {
+func SaveLocale(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 
@@ -31,7 +21,7 @@ func (lc *LocaleController) SaveLocale(c *fiber.Ctx) error {
 		flagIcon := c.FormValue("flagIcon")
 		id := c.FormValue("id")
 		if id == "" {
-			err := lc.repo.CreateLanguage(c.Context(), dbr.CreateLanguageParams{Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
+			err := languagedb.CreateLanguage(db.DB, &languagedb.Language{Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju jezika!", "link": "/dashboard"})
 			}
@@ -40,7 +30,7 @@ func (lc *LocaleController) SaveLocale(c *fiber.Ctx) error {
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 			}
-			err = lc.repo.UpdateLanguage(c.Context(), dbr.UpdateLanguageParams{ID: int64(idInt), Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
+			err = languagedb.UpdateLanguage(db.DB, &languagedb.Language{ID: idInt, Name: name, Shorthand: shorthand, FlagIcon: flagIcon})
 			if err != nil {
 				return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju jezika!", "link": "/dashboard"})
 			}
@@ -49,10 +39,10 @@ func (lc *LocaleController) SaveLocale(c *fiber.Ctx) error {
 	}
 }
 
-func (lc *LocaleController) DeleteLocale(c *fiber.Ctx) error {
+func DeleteLocale(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 
 	} else {
@@ -63,12 +53,12 @@ func (lc *LocaleController) DeleteLocale(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 
 		}
-		err = lc.repo.DeleteLanguageByID(c.Context(), int64(idInt))
+		err = languagedb.DeleteLanguageByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri brisanju jezika!", "link": "/dashboard"})
 
 		}
-		languages, err := lc.repo.GetAllLanguages(c.Context())
+		languages, err := languagedb.GetAllLanguages(db.DB)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
@@ -76,10 +66,10 @@ func (lc *LocaleController) DeleteLocale(c *fiber.Ctx) error {
 	}
 }
 
-func (lc *LocaleController) AddLocale(c *fiber.Ctx) error {
+func AddLocale(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 
 	} else {
@@ -87,13 +77,13 @@ func (lc *LocaleController) AddLocale(c *fiber.Ctx) error {
 	}
 }
 
-func (lc *LocaleController) AdminLocales(c *fiber.Ctx) error {
+func AdminLocales(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
-		languages, err := lc.repo.GetAllLanguages(c.Context())
+		languages, err := languagedb.GetAllLanguages(db.DB)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
@@ -101,10 +91,10 @@ func (lc *LocaleController) AdminLocales(c *fiber.Ctx) error {
 	}
 }
 
-func (lc *LocaleController) EditLocale(c *fiber.Ctx) error {
+func EditLocale(c *fiber.Ctx) error {
 	// get user from locals
-	isAdmin := c.Locals("is_admin").(bool)
-	if isAdmin == false {
+	isAdmin := c.Locals("is_admin").(int)
+	if isAdmin == 0 {
 		return c.Render("forOfor", fiber.Map{"status": "401", "errorText": "Nemate pristup!", "link": "/dashboard"})
 	} else {
 		id := c.Params("id")
@@ -113,7 +103,7 @@ func (lc *LocaleController) EditLocale(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
-		language, err := lc.repo.GetLanguageByID(c.Context(), int64(idInt))
+		language, err := languagedb.GetLanguageByID(db.DB, idInt)
 		if err != nil {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}

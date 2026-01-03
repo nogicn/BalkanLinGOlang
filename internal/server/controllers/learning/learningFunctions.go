@@ -1,24 +1,25 @@
 package learningcontroller
 
 import (
-	dbr "BalkanLinGO/internal/db/repository"
-	"context"
-	"database/sql"
+	"BalkanLinGO/internal/db"
+	"BalkanLinGO/internal/db/models/activequestiondb"
+	"BalkanLinGO/internal/db/models/userworddb"
+	"BalkanLinGO/internal/db/models/worddb"
 	"math/rand"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func fillWordList(rows []dbr.GetViableWordsForUserForDictionaryRow, finalWords []dbr.Word, n int) []dbr.Word {
+func fillWordList(words []userworddb.Word, finalWords []worddb.Word, n int) []worddb.Word {
 	// get 4 random words
 	for i := 0; i < n; i++ {
 		////fmt.Println("generating ")
 		// generate random number between 1 and number of words in dictionary
-		random := rand.Intn(len(rows))
+		random := rand.Intn(len(words))
 		duplicate := false
 		for j := 0; j < len(finalWords); j++ {
-			if finalWords[j].ID == rows[random].Word.ID {
+			if finalWords[j].ID == words[random].ID {
 				duplicate = true
 				break
 			}
@@ -27,29 +28,30 @@ func fillWordList(rows []dbr.GetViableWordsForUserForDictionaryRow, finalWords [
 			i--
 			continue
 		}
-		finalWords = append(finalWords, rows[random].Word)
+		finalWords = append(finalWords, worddb.Word(words[random]))
 	}
 	return finalWords
 }
 
-func (lc *LearnController) createWords(c *fiber.Ctx, idInt int) error {
-	words, err := lc.repo.GetAllWordsNotInUserWord(c.Context(), int64(c.Locals("user_id").(int64)))
+func createWords(c *fiber.Ctx, idInt int) error {
+	words, err := worddb.GetAllWordsNotInUserWord(db.DB, c.Locals("user_id").(int))
 	if err != nil {
 		return fiber.NewError(500, "Database error")
 	}
 
 	for _, word := range words {
-		if word.DictionaryID != int64(idInt) {
+		if word.DictionaryID != idInt {
 			continue
 		}
 		currentDate := time.Now().Add(-time.Hour * 24 * 30)
-		err := lc.repo.CreateUserWord(c.Context(), dbr.CreateUserWordParams{
-			UserID:       int64(c.Locals("user_id").(int64)),
+		var trueword = userworddb.UserWord{
+			UserID:       c.Locals("user_id").(int),
 			WordID:       word.ID,
 			Active:       1,
-			Delay:        sql.NullInt64{Int64: 0, Valid: true},
-			LastAnswered: sql.NullString{String: currentDate.Format("2006-01-02 15:04:05"), Valid: true},
-		})
+			Delay:        0,
+			LastAnswered: currentDate.Format("2006-01-02 15:04:05"),
+		}
+		err := userworddb.CreateUserWord(db.DB, &trueword)
 		if err != nil {
 			return fiber.NewError(500, "Greška kod stvaranja riječi!")
 		}
@@ -57,43 +59,38 @@ func (lc *LearnController) createWords(c *fiber.Ctx, idInt int) error {
 	return nil
 }
 
-func (lc *LearnController) setActiveQuestion(activequestion *dbr.ActiveQuestion, c *fiber.Ctx, idInt int, typeOf int) error {
-	ctx := context.Background()
-	tmpActive := dbr.ActiveQuestion{}
+func setActiveQuestion(activequestion *activequestiondb.ActiveQuestion, c *fiber.Ctx, idInt int, typeOf int) error {
+	tmpActive := activequestiondb.ActiveQuestion{}
 
-	if *activequestion != (dbr.ActiveQuestion{}) {
-		err := lc.repo.DeleteActiveQuestionByUserID(ctx, sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	if *activequestion != (activequestiondb.ActiveQuestion{}) {
+		err := activequestiondb.DeleteActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 		if err != nil {
 			return fiber.NewError(500, "Greška kod brisanja aktivne riječi!")
 		}
 	}
 
-	rows, err := lc.repo.GetViableWordsForUserForDictionary(ctx, dbr.GetViableWordsForUserForDictionaryParams{
-		UserID:       int64(c.Locals("user_id").(int64)),
-		DictionaryID: int64(idInt),
-	})
+	userWords, _, err := userworddb.GetViableWordsForUserForDictionary(db.DB, c.Locals("user_id").(int), idInt)
 	if err != nil {
 		return fiber.NewError(500, "Greška kod dohvaćanja riječi! nema rijeci za dict")
 	}
 
-	if len(rows) < 3 {
+	if len(userWords) < 3 {
 		return fiber.NewError(404, "Nema više riječi za učenje!")
 	}
 
-	random := rand.Intn(len(rows))
+	random := rand.Intn(len(userWords))
+	tmpActive.WordID = userWords[random].WordID
+	tmpActive.UserID = c.Locals("user_id").(int)
 	if typeOf > 4 {
 		typeOf = 1
 	}
-	err = lc.repo.SetActiveQuestion(ctx, dbr.SetActiveQuestionParams{
-		UserID: sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true},
-		WordID: sql.NullInt64{Int64: rows[random].UserWord.WordID, Valid: true},
-		Type:   int64(typeOf),
-	})
+	tmpActive.Type = typeOf
+	err = activequestiondb.SetActiveQuestion(db.DB, &tmpActive)
 	if err != nil {
 
 		return fiber.NewError(404, "Greška kod stvaranja aktivne riječi!")
 	}
-	tmpActive, _ = lc.repo.GetActiveQuestionByUserID(ctx, sql.NullInt64{Int64: int64(c.Locals("user_id").(int64)), Valid: true})
+	tmpActive, _ = activequestiondb.GetActiveQuestionByUserID(db.DB, c.Locals("user_id").(int))
 
 	*activequestion = tmpActive
 	return nil

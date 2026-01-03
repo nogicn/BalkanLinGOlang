@@ -1,17 +1,17 @@
-package server
+package routes
 
 import (
 	localecontroller "BalkanLinGO/internal/server/controllers/locale"
 	"BalkanLinGO/internal/server/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-func (s *FiberServer) RegisterLocaleRouter() {
-	localecontroller := localecontroller.New(s.db)
+func LocaleRouter(app *fiber.App, session *session.Store) {
 
-	route := s.Group("/locale")
-	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) }, middleware.IsAdmin(s.session))
+	route := app.Group("/locale")
+	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, session) }, middleware.IsAdmin(session))
 
 	route.Get("/adminLocales", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")

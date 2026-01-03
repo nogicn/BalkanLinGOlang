@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	//"BalkanLinGO/controllers"
@@ -7,14 +7,14 @@ import (
 	"BalkanLinGO/internal/server/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
-func (s *FiberServer) RegisterWordRouter() {
-	wordcontroller := wordcontroller.New(s.db)
+func WordRouter(app *fiber.App, session *session.Store) {
 
-	route := s.Group("/word")
+	route := app.Group("/word")
 	route.Use(func(c *fiber.Ctx) error { return middleware.HtmxMiddleware(c) })
-	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) })
+	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, session) })
 	route.Get("/editWord/:id", wordcontroller.EditWord)
 	route.Post("/editWord/:id", wordcontroller.SaveWord)
 	route.Get("/addWord/:id", wordcontroller.AddWord)

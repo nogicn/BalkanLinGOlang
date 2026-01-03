@@ -20,7 +20,7 @@ func IsAdmin(store *session.Store) fiber.Handler {
 			return c.Redirect("/login")
 		}
 
-		if user.isAdmin == false {
+		if user.IsAdmin == 0 {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Nemate pristup ovoj stranici!", "link": "/dashboard"})
 		}*/
 		// check if is admin from session

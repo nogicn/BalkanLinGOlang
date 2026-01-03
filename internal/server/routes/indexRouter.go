@@ -1,4 +1,4 @@
-package server
+package routes
 
 import (
 	//"BalkanLinGO/controllers"
@@ -7,14 +7,14 @@ import (
 	"BalkanLinGO/internal/server/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 // create fiber route for users
 
-func (s *FiberServer) RegisterIndexRouter() {
-	learningcontroller := learningcontroller.New(s.db)
+func IndexRouter(app *fiber.App, session *session.Store) {
 
-	route := s.Group("/")
+	route := app.Group("/")
 
 	route.Get("/register", func(c *fiber.Ctx) error {
 		return c.Render("auth/register", fiber.Map{"title": "Register"})
@@ -39,7 +39,7 @@ func (s *FiberServer) RegisterIndexRouter() {
 
 	route.Get("/",
 		func(c *fiber.Ctx) error {
-			return middleware.CheckAuth(c, s.session, s.db)
+			return middleware.CheckAuth(c, session)
 		},
 		func(c *fiber.Ctx) error {
 			return c.Render("dashboard", fiber.Map{"title": "Dashboard", "hx_link": "dictionary", "IsAdmin": c.Locals("is_admin")})
@@ -47,7 +47,7 @@ func (s *FiberServer) RegisterIndexRouter() {
 
 	route.Get("/learnSession/:id",
 		func(c *fiber.Ctx) error {
-			return middleware.CheckAuth(c, s.session, s.db)
+			return middleware.CheckAuth(c, session)
 		},
 		func(c *fiber.Ctx) error {
 			return middleware.HtmxMiddleware(c)

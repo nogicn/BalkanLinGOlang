@@ -21,6 +21,3 @@ tmp
 # Go workspace file
 go.work
 .vscode/
-
-# sqlc generated files
-internal/db/repository/*

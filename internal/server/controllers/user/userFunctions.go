@@ -1,8 +1,8 @@
 package usercontroller
 
 import (
-	dbr "BalkanLinGO/internal/db/repository"
-	"database/sql"
+	"BalkanLinGO/internal/db"
+	"BalkanLinGO/internal/db/models/userdb"
 	"fmt"
 	"math/rand"
 
@@ -19,7 +19,7 @@ func randStringBytes(n int) string {
 	return string(b)
 }
 
-func (uc *UserController) loginProcedure(c *fiber.Ctx, s *session.Store, user dbr.User, email string, password string) error {
+func loginProcedure(c *fiber.Ctx, s *session.Store, user userdb.User, email string, password string) error {
 	// Create session
 	session, err := s.Get(c)
 	if err != nil {
@@ -29,28 +29,21 @@ func (uc *UserController) loginProcedure(c *fiber.Ctx, s *session.Store, user db
 	// create token
 	token := randStringBytes(32)
 	// Update token in database
-	user, err = uc.repo.UpdateTokenByEmail(c.Context(), dbr.UpdateTokenByEmailParams{
-		Token: sql.NullString{String: token, Valid: true},
-		Email: email,
-	})
+	user, err = userdb.UpdateTokenByEmail(db.DB, email, token)
 	if err != nil {
 		fmt.Println("2", err)
 		return &fiber.Error{Code: 500, Message: "Internal Server Error"}
 	}
 
 	// Set user as authenticated
-	var isAdmin int
-	if user.IsAdmin {
-		isAdmin = 1
-	}
-	session.Set("is_admin", isAdmin)
-	session.Set("user_id", int(user.ID))
+	session.Set("is_admin", user.IsAdmin)
+	session.Set("user_id", user.ID)
 
-	c.Locals("user_id", int(user.ID))
+	c.Locals("user_id", user.ID)
 	c.Locals("name", user.Name)
 	c.Locals("surname", user.Surname)
 	c.Locals("email", user.Email)
-	c.Locals("is_admin", isAdmin)
+	c.Locals("is_admin", user.IsAdmin)
 
 	err = session.Save()
 	if err != nil {
