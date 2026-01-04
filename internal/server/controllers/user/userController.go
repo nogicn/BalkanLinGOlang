@@ -77,7 +77,7 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
-		return c.Render("auth/resetPassNotif", fiber.Map{})
+		return c.Render("auth/resetPassNotif", fiber.Map{"reset": true})
 	}
 }
 
@@ -125,7 +125,7 @@ func (uc *UserController) LoginUser(c *fiber.Ctx, s *session.Store) error {
 	fmt.Println(user.Password, password, user.Password == password)
 	// Compare passwords
 	if user.Password == password {
-		return c.Render("auth/createPass", fiber.Map{"email": email})
+		return c.Render("auth/createPass", fiber.Map{"email": email, "title": "Create Password", "createPass": true})
 	} else {
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
@@ -275,6 +275,6 @@ func (uc *UserController) ResetPass(c *fiber.Ctx) error {
 
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
-		return c.Render("auth/resetPassNotif", fiber.Map{})
+		return c.Render("auth/resetPassNotif", fiber.Map{"title": "Reset Password", "reset": true})
 	}
 }

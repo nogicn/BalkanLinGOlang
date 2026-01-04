@@ -17,20 +17,16 @@ func (s *FiberServer) RegisterIndexRouter() {
 	route := s.Group("/")
 
 	route.Get("/register", func(c *fiber.Ctx) error {
-		return c.Render("auth/register", fiber.Map{"title": "Register"})
+		return c.Render("auth/authBase", fiber.Map{"title": "Register", "register": true})
 	})
 
 	route.Get("/login",
 		func(c *fiber.Ctx) error {
-			return c.Render("auth/login", fiber.Map{"title": "Login"})
+			return c.Render("auth/authBase", fiber.Map{"title": "Login", "login": true})
 		})
 
 	route.Get("/reset", func(c *fiber.Ctx) error {
-		return c.Render("auth/resetPass", fiber.Map{"title": "Reset"})
-	})
-
-	route.Get("/dict", func(c *fiber.Ctx) error {
-		return c.Render("dictSearch", fiber.Map{"title": "Dictionary"})
+		return c.Render("auth/authBase", fiber.Map{"title": "Reset", "reset": true})
 	})
 
 	route.Get("/error", func(c *fiber.Ctx) error {

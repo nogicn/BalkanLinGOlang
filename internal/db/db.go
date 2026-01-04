@@ -112,6 +112,7 @@ func New(dburlOverride string) Service {
 	}
 
 	dbrw.SetMaxOpenConns(1)
+	dbrw.SetMaxIdleConns(1)
 
 	dbro, err := sql.Open("sqlite", "file:"+dburl+"?mode=ro&_journal_mode=WAL")
 	if err != nil {
@@ -123,6 +124,8 @@ func New(dburlOverride string) Service {
 	if err := dbro.Ping(); err != nil {
 		log.Fatalf("failed to connect to sqlite db: %v", err)
 	}
+
+	dbro.SetMaxIdleConns(1)
 
 	dbInstance = &service{
 		DBrw:  dbrw,
