@@ -1,6 +1,6 @@
 <div class="main-content">
     <div class="button-container">
-        <a href="/dashboard" style="opacity:0">
+        <a href="/" style="opacity:0">
             <img src="/images/orange-home.png" alt="">
             <p>završi sesiju učenja</p>
         </a>
@@ -9,11 +9,11 @@
     {% include './learn/partials/words.html' %}
 
     <div class="button-container">
-        <div hx-target=".main" hx-get="/learnSession/{{ dictionaryId }}" hx-swap="innerHTML" hx-push-url="true"
+        <a hx-target=".main" hx-get="/learnSession/{{ dictionaryId }}" hx-swap="innerHTML" hx-push-url="true"
             style="opacity:0">
             <img src="/images/orange-next.png" alt="">
             <p>sljedeće pitanje</p>
-        </div>
+        </a>
     </div>
 </div>
 
