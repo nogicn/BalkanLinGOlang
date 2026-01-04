@@ -37,6 +37,10 @@ func gracefulShutdown(fiberServer *server.FiberServer, done chan bool) {
 		log.Printf("Server forced to shutdown with error: %v", err)
 	}
 
+	if err := fiberServer.CloseDB(); err != nil {
+		log.Printf("Error closing database connection: %v", err)
+	}
+
 	log.Println("Server exiting")
 
 	// Notify the main goroutine that the shutdown is complete

@@ -118,6 +118,6 @@ func (lc *LocaleController) EditLocale(c *fiber.Ctx) error {
 			return c.Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška, nije int!", "link": "/dashboard"})
 		}
 
-		return c.Render("localeAddAdmin", fiber.Map{"locale": language, "IsAdmin": c.Locals("is_admin")})
+		return c.Render("locale/localeAddAdmin", fiber.Map{"locale": language, "IsAdmin": c.Locals("is_admin")})
 	}
 }

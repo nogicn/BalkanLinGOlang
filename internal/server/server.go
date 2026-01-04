@@ -14,6 +14,10 @@ type FiberServer struct {
 	session *session.Store
 }
 
+type fiberServer interface {
+	CloseDB()
+}
+
 func New(dbUrl string) *FiberServer {
 	engine := django.New("./internal/server/web/views", ".html")
 	server := &FiberServer{
@@ -21,7 +25,7 @@ func New(dbUrl string) *FiberServer {
 			ServerHeader:      "BalkanLinGO",
 			AppName:           "BalkanLinGO",
 			Views:             engine,
-			ReduceMemoryUsage: false,
+			ReduceMemoryUsage: true,
 		}),
 
 		db:      db.New(dbUrl),
@@ -35,4 +39,8 @@ func New(dbUrl string) *FiberServer {
 	//app.Use(logger.New())
 
 	return server
+}
+
+func (s *FiberServer) CloseDB() error {
+	return s.db.Close()
 }

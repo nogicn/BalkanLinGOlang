@@ -12,7 +12,7 @@ import (
 // create fiber route for users
 
 func (s *FiberServer) RegisterIndexRouter() {
-	learningcontroller := learningcontroller.New(s.db)
+	lc := learningcontroller.New(s.db)
 
 	route := s.Group("/")
 
@@ -53,6 +53,6 @@ func (s *FiberServer) RegisterIndexRouter() {
 			return middleware.HtmxMiddleware(c)
 		},
 		func(c *fiber.Ctx) error {
-			return learningcontroller.LearnSession(c)
+			return lc.LearnSession(c)
 		})
 }

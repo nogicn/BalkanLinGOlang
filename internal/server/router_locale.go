@@ -8,7 +8,7 @@ import (
 )
 
 func (s *FiberServer) RegisterLocaleRouter() {
-	localecontroller := localecontroller.New(s.db)
+	lc := localecontroller.New(s.db)
 
 	route := s.Group("/locale")
 	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) }, middleware.IsAdmin(s.session))
@@ -16,21 +16,21 @@ func (s *FiberServer) RegisterLocaleRouter() {
 	route.Get("/adminLocales", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")
 
-	}, localecontroller.AdminLocales)
+	}, lc.AdminLocales)
 	route.Get("/addLocale", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")
-	}, localecontroller.AddLocale)
+	}, lc.AddLocale)
 
 	route.Get("/editLocale/:id", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")
-	}, localecontroller.EditLocale)
+	}, lc.EditLocale)
 
 	route.Post("/saveLocale", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")
-	}, localecontroller.SaveLocale)
+	}, lc.SaveLocale)
 
 	route.Get("/deleteLocale/:id", func(c *fiber.Ctx) error {
 		return middleware.HtmxMiddleware(c, "/")
-	}, localecontroller.DeleteLocale)
+	}, lc.DeleteLocale)
 
 }
