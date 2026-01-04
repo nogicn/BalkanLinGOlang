@@ -11,7 +11,7 @@ import (
 
 func CheckAuth(c *fiber.Ctx, s *session.Store, DB db.Service) error {
 
-	repo := DB.GetRepository()
+	repo := DB.GetRepositoryRO()
 	// get session
 	session, err := s.Get(c)
 

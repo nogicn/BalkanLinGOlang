@@ -16,7 +16,7 @@ type WordController struct {
 
 func New(dbService db.Service) *WordController {
 	return &WordController{
-		repo: dbService.GetRepository(),
+		repo: dbService.GetRepositoryRW(),
 	}
 }
 

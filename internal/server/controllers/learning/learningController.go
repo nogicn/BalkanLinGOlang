@@ -19,7 +19,7 @@ type LearnController struct {
 
 func New(dbService db.Service) *LearnController {
 	return &LearnController{
-		repo: dbService.GetRepository(),
+		repo: dbService.GetRepositoryRW(),
 	}
 }
 

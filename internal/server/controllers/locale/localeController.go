@@ -14,7 +14,7 @@ type LocaleController struct {
 
 func New(dbService db.Service) *LocaleController {
 	return &LocaleController{
-		repo: dbService.GetRepository(),
+		repo: dbService.GetRepositoryRW(),
 	}
 }
 

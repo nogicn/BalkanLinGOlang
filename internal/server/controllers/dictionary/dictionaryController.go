@@ -18,7 +18,7 @@ type DictionaryController struct {
 
 func New(dbService db.Service) *DictionaryController {
 	return &DictionaryController{
-		repo: dbService.GetRepository(),
+		repo: dbService.GetRepositoryRW(),
 	}
 }
 

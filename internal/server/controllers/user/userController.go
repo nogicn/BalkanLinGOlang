@@ -19,7 +19,7 @@ type UserController struct {
 
 func New(dbService db.Service) *UserController {
 	return &UserController{
-		repo: dbService.GetRepository(),
+		repo: dbService.GetRepositoryRW(),
 	}
 }
 

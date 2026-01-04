@@ -33,13 +33,17 @@ var (
 
 type Service interface {
 	Close() error
-	GetRepository() *repository.Queries
+	GetRepositoryRW() *repository.Queries
+	GetRepositoryRO() *repository.Queries
 	Init()
 }
 
 type service struct {
-	DB         *sql.DB
-	Repository *repository.Queries
+	DBrw  *sql.DB
+	Reprw *repository.Queries
+
+	DBro  *sql.DB
+	Repro *repository.Queries
 }
 
 func copyFile(src, dst string) error {
@@ -90,14 +94,14 @@ func New(dburlOverride string) Service {
 	}
 
 	// Use mode=rwc so SQLite creates the DB file if it doesn't exist
-	db, err := sql.Open("sqlite", "file:"+dburl+"?mode=rwc&_journal_mode=WAL&_txlock=immediate")
+	dbrw, err := sql.Open("sqlite", "file:"+dburl+"?mode=rwc&_journal_mode=WAL&_txlock=immediate")
 	if err != nil {
 		// This will not be a connection error, but a DSN parse error or
 		// another initialization error.
 		log.Fatal(err)
 	}
 	// Verify we can connect / open the DB now
-	if err := db.Ping(); err != nil {
+	if err := dbrw.Ping(); err != nil {
 		log.Fatalf("failed to connect to sqlite db: %v", err)
 	}
 
@@ -107,17 +111,30 @@ func New(dburlOverride string) Service {
 		log.Fatalf("goose set dialect failed: %v", err)
 	}
 
-	db.SetMaxOpenConns(1)
+	dbrw.SetMaxOpenConns(1)
+
+	dbro, err := sql.Open("sqlite", "file:"+dburl+"?mode=ro&_journal_mode=WAL")
+	if err != nil {
+		// This will not be a connection error, but a DSN parse error or
+		// another initialization error.
+		log.Fatal(err)
+	}
+	// Verify we can connect / open the DB now
+	if err := dbro.Ping(); err != nil {
+		log.Fatalf("failed to connect to sqlite db: %v", err)
+	}
 
 	dbInstance = &service{
-		DB:         db,
-		Repository: repository.New(db),
+		DBrw:  dbrw,
+		Reprw: repository.New(dbrw),
+		DBro:  dbro,
+		Repro: repository.New(dbro),
 	}
 
 	if !doesExist {
 		// Run migrations
 
-		if err := goose.Up(db, "migrations"); err != nil {
+		if err := goose.Up(dbrw, "migrations"); err != nil {
 			log.Fatalf("goose up failed: %v", err)
 		}
 		dbInstance.Init()
@@ -138,7 +155,7 @@ func (s *service) Init() {
 
 	for i, u := range sampleUsers {
 		if sampleIsAdmin[i] {
-			err := dbInstance.Repository.CreateAdmin(ctx, repository.CreateAdminParams{
+			err := dbInstance.Reprw.CreateAdmin(ctx, repository.CreateAdminParams{
 				Name:     u,
 				Surname:  sampleSurname[i],
 				Email:    sampleEmail[i],
@@ -148,7 +165,7 @@ func (s *service) Init() {
 				log.Fatal(err)
 			}
 		} else {
-			err := dbInstance.Repository.CreateUser(ctx, repository.CreateUserParams{
+			err := dbInstance.Reprw.CreateUser(ctx, repository.CreateUserParams{
 				Name:     u,
 				Surname:  sampleSurname[i],
 				Email:    sampleEmail[i],
@@ -165,9 +182,12 @@ func (s *service) Init() {
 }
 
 func (s *service) Close() error {
-	return s.DB.Close()
+	return s.DBrw.Close()
 }
 
-func (s *service) GetRepository() *repository.Queries {
-	return s.Repository
+func (s *service) GetRepositoryRW() *repository.Queries {
+	return s.Reprw
+}
+func (s *service) GetRepositoryRO() *repository.Queries {
+	return s.Repro
 }
