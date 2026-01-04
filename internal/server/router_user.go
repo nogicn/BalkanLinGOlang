@@ -21,7 +21,6 @@ func (s *FiberServer) RegisterUserRouter() {
 	protected := s.Group("/user")
 	protected.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) })
 	protected.Get("/logout", func(c *fiber.Ctx) error { return uc.LogoutUser(c, s.session) })
-	protected.Post("/", uc.UpdateUser)
 
 	//use htmx for remaining routes
 	protected.Use(func(c *fiber.Ctx) error { return middleware.HtmxMiddleware(c) })
@@ -30,6 +29,7 @@ func (s *FiberServer) RegisterUserRouter() {
 	//protected.Delete(":id", usercontroller.DeleteUser)
 	protected.Post("/getUsers", uc.ListUsers)
 
+	protected.Post("/", uc.UpdateUser)
 	protected.Get("/edit", uc.EditUser)
 	protected.Post("/setAdmin/:id", uc.SetAdmin)
 	protected.Post("/reset", uc.ResetPass)
