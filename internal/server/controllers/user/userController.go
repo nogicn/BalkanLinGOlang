@@ -230,7 +230,7 @@ func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 	surname := c.FormValue("surname")
 
 	token := c.Locals("token").(sql.NullString)
-	_, err := uc.repo.UpdateUserByToken(c.Context(), dbr.UpdateUserByTokenParams{
+	user, err := uc.repo.UpdateUserByToken(c.Context(), dbr.UpdateUserByTokenParams{
 		Name:    name,
 		Surname: surname,
 		Token:   token,
@@ -239,7 +239,7 @@ func (uc *UserController) UpdateUser(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 
-	return c.Redirect("/user/edit")
+	return c.Render("user/userEdit", fiber.Map{"user": user, "success": true})
 }
 
 func (uc *UserController) ResetPass(c *fiber.Ctx) error {
