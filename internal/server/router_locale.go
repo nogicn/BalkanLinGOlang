@@ -11,26 +11,15 @@ func (s *FiberServer) RegisterLocaleRouter() {
 	lc := localecontroller.New(s.db)
 
 	route := s.Group("/locale")
-	route.Use(func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) }, middleware.IsAdmin(s.session))
+	route.Use(
+		func(c *fiber.Ctx) error { return middleware.CheckAuth(c, s.session, s.db) },
+		middleware.IsAdmin(s.session),
+		func(c *fiber.Ctx) error { return middleware.HtmxMiddleware(c) })
 
-	route.Get("/adminLocales", func(c *fiber.Ctx) error {
-		return middleware.HtmxMiddleware(c, "/")
-
-	}, lc.AdminLocales)
-	route.Get("/addLocale", func(c *fiber.Ctx) error {
-		return middleware.HtmxMiddleware(c, "/")
-	}, lc.AddLocale)
-
-	route.Get("/editLocale/:id", func(c *fiber.Ctx) error {
-		return middleware.HtmxMiddleware(c, "/")
-	}, lc.EditLocale)
-
-	route.Post("/saveLocale", func(c *fiber.Ctx) error {
-		return middleware.HtmxMiddleware(c, "/")
-	}, lc.SaveLocale)
-
-	route.Get("/deleteLocale/:id", func(c *fiber.Ctx) error {
-		return middleware.HtmxMiddleware(c, "/")
-	}, lc.DeleteLocale)
+	route.Get("/adminLocales", lc.AdminLocales)
+	route.Get("/addLocale", lc.AddLocale)
+	route.Get("/editLocale/:id", lc.EditLocale)
+	route.Post("/saveLocale", lc.SaveLocale)
+	route.Get("/deleteLocale/:id", lc.DeleteLocale)
 
 }

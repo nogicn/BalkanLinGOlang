@@ -107,6 +107,8 @@ func New(dburlOverride string) Service {
 		log.Fatalf("goose set dialect failed: %v", err)
 	}
 
+	db.SetMaxOpenConns(1)
+
 	dbInstance = &service{
 		DB:         db,
 		Repository: repository.New(db),
