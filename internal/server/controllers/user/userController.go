@@ -77,7 +77,7 @@ func (uc *UserController) CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).Render("forOfor", fiber.Map{"status": "500", "errorText": "Greška pri kreiranju korisnika!", "link": "/login"})
 	} else {
-		return c.Render("auth/resetPassNotif", fiber.Map{"reset": true})
+		return c.Render("auth/authBase", fiber.Map{"reset": true, "title": "Reset Password", "resetNotif": true})
 	}
 }
 
