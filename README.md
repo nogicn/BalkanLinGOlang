@@ -1,8 +1,5 @@
-## BalkanLingo ali u Golangu :DD
-
-Prvo preimenuj .example.env u .env
-Zatim pokreni aplikaciju sa `go run main.go`
-
+## BalkanLingo but in GO
+Rewrite of [https://github.com/nogicn/BalkanLingo]{a group project} in golang
 
 ### Admin Account:
 - **Email:admin@balkanlingo.online**
