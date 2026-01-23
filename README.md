@@ -1,5 +1,6 @@
 ## BalkanLingo but in GO
-Rewrite of [https://github.com/nogicn/BalkanLingo]{a group project} in golang
+Rewrite of [BalkanLingo](https://github.com/nogicn/BalkanLingo) in Go.
+
 
 ### Admin Account:
 - **Email:admin@balkanlingo.online**
